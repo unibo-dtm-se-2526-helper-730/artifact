@@ -13,7 +13,7 @@ A web app that helps Italy-based investors using Revolut under the declarative t
 ## Project Structure
 
 - `backend/` - API REST Spring Boot
-- `frontend/` - interfaccia React
+- `frontend/` - React interface
 
 ## Project Start
 
@@ -22,3 +22,6 @@ TODO
 ## Conventions
 
 - Commit according to [Conventional Commits](https://www.conventionalcommits.org/)
+
+## License
+Apache License 2.0 — see [LICENSE](LICENSE).
