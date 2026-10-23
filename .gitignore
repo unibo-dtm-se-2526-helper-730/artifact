@@ -1,0 +1,13 @@
+# Java
+target/
+*.class
+*.log
+
+# Node
+node_modules/
+dist/
+
+.vscode/*
+
+# Environments
+.env
