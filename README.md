@@ -4,7 +4,7 @@ A web app that helps Italy-based investors using Revolut under the declarative t
 
 ## Stack
 
-- Java 21 / Spring Boot 3.5
+- Java 21 / Spring Boot 4.1
 - PostgreSQL 16
 - React + TypeScript + Vite
 - Docker
