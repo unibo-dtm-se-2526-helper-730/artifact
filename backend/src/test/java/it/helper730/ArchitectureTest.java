@@ -17,8 +17,11 @@ class ArchitectureTest {
     @Test
     void domainAndEngineDoNotDependOnFrameworks() {
         noClasses()
-                .that().resideInAnyPackage("..domain..", "..engine..")
-                .should().dependOnClassesThat().resideInAnyPackage(
+                .that()
+                .resideInAnyPackage("..domain..", "..engine..")
+                .should()
+                .dependOnClassesThat()
+                .resideInAnyPackage(
                         "org.springframework..",
                         "jakarta.persistence..",
                         "jakarta.validation..",
@@ -30,10 +33,18 @@ class ArchitectureTest {
     @Test
     void domainDependsOnNoOtherLayer() {
         noClasses()
-                .that().resideInAPackage("..domain..")
-                .should().dependOnClassesThat().resideInAnyPackage(
-                        "..engine..", "..ingestion..", "..reporting..", "..persistence..",
-                        "..service..", "..api..", "..config..")
+                .that()
+                .resideInAPackage("..domain..")
+                .should()
+                .dependOnClassesThat()
+                .resideInAnyPackage(
+                        "..engine..",
+                        "..ingestion..",
+                        "..reporting..",
+                        "..persistence..",
+                        "..service..",
+                        "..api..",
+                        "..config..")
                 .check(CLASSES);
     }
 }
