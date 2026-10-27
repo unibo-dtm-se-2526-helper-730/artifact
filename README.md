@@ -25,3 +25,21 @@ TODO
 
 ## License
 Apache License 2.0 — see [LICENSE](LICENSE).
+
+
+## Local Development
+
+Prerequisites: JDK 21, Docker.
+
+```bash
+docker compose up -d db              # start PostgreSQL
+cd backend
+./mvnw clean package                 # compile and execute unit tests
+./mvnw spring-boot:run               # starts the backend at http://localhost:8080
+docker compose down -v               # (from the root) stops and cancel the database
+```
+```bash
+./mvnw spotless:apply                # code formatter
+./mvnw spotless:check                # verifies the formatting
+./mvnw verify                        # coverate test and report in target/site/jacoco/index.html
+```
