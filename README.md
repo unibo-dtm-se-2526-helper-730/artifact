@@ -4,7 +4,7 @@ A web app that helps Italy-based investors using Revolut under the declarative t
 
 ## Stack
 
-- Java 21 / Spring Boot 4.1
+- Java 25 / Spring Boot 4.1
 - PostgreSQL 16
 - React + TypeScript + Vite
 - Docker
@@ -29,7 +29,7 @@ Apache License 2.0 — see [LICENSE](LICENSE).
 
 ## Local Development
 
-Prerequisites: JDK 21, Docker.
+Prerequisites: JDK 25, Docker.
 
 ```bash
 docker compose up -d db              # start PostgreSQL
