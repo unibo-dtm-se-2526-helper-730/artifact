@@ -1,6 +1,6 @@
 package it.helper730.engine.rules;
 
-import it.helper730.domain.UnsupportedTaxYearException;
+import it.helper730.domain.exceptions.UnsupportedTaxYearException;
 
 /**
  * Chooses the tax rules of a tax year. A future change in the law becomes a new

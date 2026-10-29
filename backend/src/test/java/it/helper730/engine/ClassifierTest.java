@@ -11,8 +11,8 @@ import it.helper730.domain.Instrument;
 import it.helper730.domain.OperationType;
 import it.helper730.domain.TaxableEvent;
 import it.helper730.domain.Transaction;
-import it.helper730.domain.UnclassifiedInstrumentsException;
-import it.helper730.domain.UnsupportedTaxYearException;
+import it.helper730.domain.exceptions.UnclassifiedInstrumentsException;
+import it.helper730.domain.exceptions.UnsupportedTaxYearException;
 import it.helper730.engine.rules.CurrentRegime;
 import it.helper730.engine.rules.RuleSetFactory;
 import java.math.BigDecimal;
@@ -70,8 +70,8 @@ class ClassifierTest {
 
     @Test
     void stockGainIsFullyTaxableMiscellaneousIncomeWithItsLots() {
-        TaxableEvent event =
-                classifier.classify(sale("5J50", "2026", "100", "125"), instrument("5J50", AssetClass.STOCK));
+        TaxableEvent event = classifier.classify(sale("5J50", "2026", "100", "125"),
+                instrument("5J50", AssetClass.STOCK));
 
         assertThat(event.type()).isEqualTo(EventType.CAPITAL_GAIN);
         assertThat(event.category()).isEqualTo(IncomeCategory.MISCELLANEOUS);
@@ -82,8 +82,8 @@ class ClassifierTest {
 
     @Test
     void stockLossIsANegativeMiscellaneousEvent() {
-        TaxableEvent event =
-                classifier.classify(sale("5J50", "2026", "100", "83.10"), instrument("5J50", AssetClass.STOCK));
+        TaxableEvent event = classifier.classify(sale("5J50", "2026", "100", "83.10"),
+                instrument("5J50", AssetClass.STOCK));
 
         assertThat(event.type()).isEqualTo(EventType.CAPITAL_LOSS);
         assertThat(event.category()).isEqualTo(IncomeCategory.MISCELLANEOUS);
@@ -103,8 +103,8 @@ class ClassifierTest {
 
     @Test
     void ucitsEtfGainIsCapitalIncome() {
-        TaxableEvent event =
-                classifier.classify(sale("XEON", "2026", "100", "101.50"), instrument("XEON", AssetClass.UCITS_ETF));
+        TaxableEvent event = classifier.classify(sale("XEON", "2026", "100", "101.50"),
+                instrument("XEON", AssetClass.UCITS_ETF));
 
         assertThat(event.category()).isEqualTo(IncomeCategory.CAPITAL);
         assertThat(event.taxableAmount()).isEqualByComparingTo("1.50");

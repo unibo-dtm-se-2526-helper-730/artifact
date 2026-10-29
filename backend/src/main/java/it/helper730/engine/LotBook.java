@@ -6,7 +6,8 @@ import it.helper730.domain.LotConsumption;
 import it.helper730.domain.Money;
 import it.helper730.domain.OperationType;
 import it.helper730.domain.Transaction;
-import it.helper730.domain.UncoveredSaleException;
+import it.helper730.domain.exceptions.UncoveredSaleException;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayDeque;
@@ -31,8 +32,8 @@ public class LotBook {
      * Chronological order of operations; the file row breaks ties between equal
      * instants.
      */
-    public static final Comparator<Transaction> CHRONOLOGICAL =
-            Comparator.comparing(Transaction::executedAt).thenComparing(Transaction::id);
+    public static final Comparator<Transaction> CHRONOLOGICAL = Comparator.comparing(Transaction::executedAt)
+            .thenComparing(Transaction::id);
 
     /** Open lots per ticker; the head of each deque is the most recent lot */
     private final Map<String, Deque<Lot>> openLots = new TreeMap<>();
@@ -106,8 +107,8 @@ public class LotBook {
 
             // the last consumption takes what is left, so the parts add up to the sale
             // amount exactly
-            BigDecimal proceeds =
-                    toSell.signum() == 0 ? proceedsLeft : Money.share(sale.totalAmount(), taken, sale.quantity());
+            BigDecimal proceeds = toSell.signum() == 0 ? proceedsLeft
+                    : Money.share(sale.totalAmount(), taken, sale.quantity());
             proceedsLeft = proceedsLeft.subtract(proceeds);
             consumptions.add(new LotConsumption(lot.buyTransactionId(), lot.acquiredAt(), taken, cost, proceeds));
 

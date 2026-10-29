@@ -6,6 +6,9 @@ import java.time.ZoneId;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import it.helper730.domain.exceptions.InvalidDataException;
+import it.helper730.domain.exceptions.UnsupportedCurrencyException;
+
 /**
  * One operation from a broker export, already parsed and normalized.
  *
