@@ -35,4 +35,9 @@ public interface TaxRuleSet {
      *                   {@link OperationType#COUPON}
      */
     Treatment incomeTreatment(Instrument instrument, OperationType type);
+
+    /**
+     * Number of years after the year of realization in which a loss can be used.
+     */
+    int lossCarryForwardYears();
 }

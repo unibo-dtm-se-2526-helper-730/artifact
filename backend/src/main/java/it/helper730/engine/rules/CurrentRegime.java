@@ -22,6 +22,11 @@ public final class CurrentRegime implements TaxRuleSet {
     /** Share of government bond income that is taxable: 12.5 / 26 = 48.08%. */
     public static final BigDecimal GOVERNMENT_BOND_WEIGHT = new BigDecimal("0.4808");
 
+    /**
+     * Losses can be used until the fourth following year.
+     */
+    public static final int LOSS_CARRY_FORWARD_YEARS = 4;
+
     @Override
     public BigDecimal rate() {
         return RATE;
@@ -79,6 +84,11 @@ public final class CurrentRegime implements TaxRuleSet {
             case ETC_ETN ->
                 throw new InvalidDataException(Msg.of("error.income_not_expected", instrument.ticker(), type.name()));
         };
+    }
+
+    @Override
+    public int lossCarryForwardYears() {
+        return LOSS_CARRY_FORWARD_YEARS;
     }
 
     /**
