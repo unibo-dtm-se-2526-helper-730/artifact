@@ -1,5 +1,6 @@
 package it.helper730.engine.rules;
 
+import it.helper730.domain.CostMethod;
 import it.helper730.domain.Instrument;
 import it.helper730.domain.OperationType;
 import java.math.BigDecimal;
@@ -9,6 +10,13 @@ public interface TaxRuleSet {
 
     /** Rate of the substitute tax on the taxable amount. */
     BigDecimal rate();
+
+    /**
+     * How the cost of the shares sold is determined for an instrument.
+     *
+     * @param instrument a classified instrument
+     */
+    CostMethod costMethod(Instrument instrument);
 
     /**
      * Treatment of the result of a sale.

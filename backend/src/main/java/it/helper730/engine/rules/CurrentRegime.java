@@ -1,11 +1,12 @@
 package it.helper730.engine.rules;
 
 import it.helper730.domain.AssetClass;
+import it.helper730.domain.CostMethod;
 import it.helper730.domain.IncomeCategory;
 import it.helper730.domain.Instrument;
-import it.helper730.domain.InvalidDataException;
 import it.helper730.domain.Msg;
 import it.helper730.domain.OperationType;
+import it.helper730.domain.exceptions.InvalidDataException;
 import java.math.BigDecimal;
 
 /**
@@ -26,12 +27,24 @@ public final class CurrentRegime implements TaxRuleSet {
         return RATE;
     }
 
+    @Override
+    public CostMethod costMethod(Instrument instrument) {
+        return switch (requireClass(instrument)) {
+            // fund units: gains are capital income, computed on the weighted average cost
+            // without fees
+            case UCITS_ETF, NON_UCITS_ETF -> CostMethod.WEIGHTED_AVERAGE;
+            case STOCK, BOND, GOVERNMENT_BOND_WL, GOVERNMENT_BOND_NON_WL, ETC_ETN -> CostMethod.LIFO;
+        };
+    }
+
     /**
      * Returns the treatment for the disposal of an instrument.
      *
      * @param instrument the instrument being disposed of
+     *
      * @param gain       {@code true} if the disposal results in a gain,
      *                   {@code false} otherwise
+     *
      * @return the treatment for the disposal
      */
     @Override
