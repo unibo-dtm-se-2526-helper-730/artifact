@@ -1,4 +1,6 @@
-package it.helper730.domain;
+package it.helper730.domain.exceptions;
+
+import it.helper730.domain.Msg;
 
 /**
  * Raised for amounts in a currency other than EUR, which the project does not

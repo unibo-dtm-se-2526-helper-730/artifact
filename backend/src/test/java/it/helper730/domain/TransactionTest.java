@@ -3,6 +3,8 @@ package it.helper730.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import it.helper730.domain.exceptions.InvalidDataException;
+import it.helper730.domain.exceptions.UnsupportedCurrencyException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;

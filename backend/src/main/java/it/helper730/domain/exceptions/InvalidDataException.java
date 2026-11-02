@@ -1,4 +1,6 @@
-package it.helper730.domain;
+package it.helper730.domain.exceptions;
+
+import it.helper730.domain.Msg;
 
 /**
  * Raised when a value violates a domain rule (malformed ISIN, negative

@@ -1,5 +1,6 @@
 package it.helper730.domain;
 
+import it.helper730.domain.exceptions.InvalidDataException;
 import java.math.BigDecimal;
 import java.util.regex.Pattern;
 

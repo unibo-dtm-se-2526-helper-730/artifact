@@ -1,8 +1,7 @@
 package it.helper730.domain.exceptions;
 
-import java.util.Objects;
-
 import it.helper730.domain.Msg;
+import java.util.Objects;
 
 /**
  * Base class of the errors raised by the domain and the engine. Each subclass

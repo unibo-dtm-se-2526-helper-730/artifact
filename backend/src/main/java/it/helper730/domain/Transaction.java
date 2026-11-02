@@ -1,13 +1,12 @@
 package it.helper730.domain;
 
+import it.helper730.domain.exceptions.InvalidDataException;
+import it.helper730.domain.exceptions.UnsupportedCurrencyException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Objects;
 import java.util.regex.Pattern;
-
-import it.helper730.domain.exceptions.InvalidDataException;
-import it.helper730.domain.exceptions.UnsupportedCurrencyException;
 
 /**
  * One operation from a broker export, already parsed and normalized.
