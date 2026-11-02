@@ -1,4 +1,7 @@
-package it.helper730.domain;
+package it.helper730.engine.rules.exceptions;
+
+import it.helper730.domain.Msg;
+import it.helper730.domain.exceptions.DomainException;
 
 /** Raised for a tax year whose rules are not implemented. */
 public class UnsupportedTaxYearException extends DomainException {

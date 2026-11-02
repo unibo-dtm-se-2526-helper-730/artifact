@@ -1,8 +1,8 @@
-package it.helper730.domain.exceptions;
-
-import java.math.BigDecimal;
+package it.helper730.engine.exceptions;
 
 import it.helper730.domain.Msg;
+import it.helper730.domain.exceptions.DomainException;
+import java.math.BigDecimal;
 
 /**
  * Raised when a sale exceeds the shares held: the export is incomplete or

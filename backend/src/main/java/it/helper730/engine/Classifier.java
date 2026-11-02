@@ -7,7 +7,7 @@ import it.helper730.domain.Money;
 import it.helper730.domain.OperationType;
 import it.helper730.domain.TaxableEvent;
 import it.helper730.domain.Transaction;
-import it.helper730.domain.UnclassifiedInstrumentsException;
+import it.helper730.engine.exceptions.UnclassifiedInstrumentsException;
 import it.helper730.engine.rules.RuleSetFactory;
 import it.helper730.engine.rules.TaxRuleSet;
 import it.helper730.engine.rules.Treatment;

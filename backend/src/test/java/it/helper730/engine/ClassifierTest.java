@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import it.helper730.domain.AssetClass;
+import it.helper730.domain.CostMethod;
 import it.helper730.domain.Disposal;
 import it.helper730.domain.EventType;
 import it.helper730.domain.IncomeCategory;
@@ -11,10 +12,10 @@ import it.helper730.domain.Instrument;
 import it.helper730.domain.OperationType;
 import it.helper730.domain.TaxableEvent;
 import it.helper730.domain.Transaction;
-import it.helper730.domain.exceptions.UnclassifiedInstrumentsException;
-import it.helper730.domain.exceptions.UnsupportedTaxYearException;
+import it.helper730.engine.exceptions.UnclassifiedInstrumentsException;
 import it.helper730.engine.rules.CurrentRegime;
 import it.helper730.engine.rules.RuleSetFactory;
+import it.helper730.engine.rules.exceptions.UnsupportedTaxYearException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
@@ -58,7 +59,7 @@ class ClassifierTest {
 
     /** Buys one share at {@code cost} and sells it at {@code proceeds}. */
     private Disposal sale(String ticker, String year, String cost, String proceeds) {
-        LotBook book = new LotBook();
+        LotBook book = new LotBook(CostMethodPolicy.always(CostMethod.LIFO));
         book.apply(trade(OperationType.BUY, ticker, year + "-01-10", cost));
         return book.apply(trade(OperationType.SELL, ticker, year + "-03-10", proceeds))
                 .orElseThrow();
@@ -70,8 +71,8 @@ class ClassifierTest {
 
     @Test
     void stockGainIsFullyTaxableMiscellaneousIncomeWithItsLots() {
-        TaxableEvent event = classifier.classify(sale("5J50", "2026", "100", "125"),
-                instrument("5J50", AssetClass.STOCK));
+        TaxableEvent event =
+                classifier.classify(sale("5J50", "2026", "100", "125"), instrument("5J50", AssetClass.STOCK));
 
         assertThat(event.type()).isEqualTo(EventType.CAPITAL_GAIN);
         assertThat(event.category()).isEqualTo(IncomeCategory.MISCELLANEOUS);
@@ -82,8 +83,8 @@ class ClassifierTest {
 
     @Test
     void stockLossIsANegativeMiscellaneousEvent() {
-        TaxableEvent event = classifier.classify(sale("5J50", "2026", "100", "83.10"),
-                instrument("5J50", AssetClass.STOCK));
+        TaxableEvent event =
+                classifier.classify(sale("5J50", "2026", "100", "83.10"), instrument("5J50", AssetClass.STOCK));
 
         assertThat(event.type()).isEqualTo(EventType.CAPITAL_LOSS);
         assertThat(event.category()).isEqualTo(IncomeCategory.MISCELLANEOUS);
@@ -103,8 +104,8 @@ class ClassifierTest {
 
     @Test
     void ucitsEtfGainIsCapitalIncome() {
-        TaxableEvent event = classifier.classify(sale("XEON", "2026", "100", "101.50"),
-                instrument("XEON", AssetClass.UCITS_ETF));
+        TaxableEvent event =
+                classifier.classify(sale("XEON", "2026", "100", "101.50"), instrument("XEON", AssetClass.UCITS_ETF));
 
         assertThat(event.category()).isEqualTo(IncomeCategory.CAPITAL);
         assertThat(event.taxableAmount()).isEqualByComparingTo("1.50");

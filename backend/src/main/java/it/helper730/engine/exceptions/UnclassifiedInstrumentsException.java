@@ -1,5 +1,7 @@
-package it.helper730.domain;
+package it.helper730.engine.exceptions;
 
+import it.helper730.domain.Msg;
+import it.helper730.domain.exceptions.DomainException;
 import java.util.Collection;
 import java.util.List;
 import java.util.TreeSet;

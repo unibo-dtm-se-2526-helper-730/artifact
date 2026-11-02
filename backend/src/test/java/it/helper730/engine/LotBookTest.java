@@ -3,11 +3,12 @@ package it.helper730.engine;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import it.helper730.domain.CostMethod;
 import it.helper730.domain.Disposal;
 import it.helper730.domain.LotConsumption;
 import it.helper730.domain.OperationType;
 import it.helper730.domain.Transaction;
-import it.helper730.domain.UncoveredSaleException;
+import it.helper730.engine.exceptions.UncoveredSaleException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
@@ -15,6 +16,8 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class LotBookTest {
+
+    private static final CostMethodPolicy LIFO = CostMethodPolicy.always(CostMethod.LIFO);
 
     private int row = 1;
 
@@ -48,7 +51,7 @@ class LotBookTest {
 
     @Test
     void saleConsumesTheMostRecentLotFirst() {
-        LotBook book = new LotBook();
+        LotBook book = new LotBook(LIFO);
         Transaction older = buy("VGWD", "2026-01-10", "10", "100");
         Transaction newer = buy("VGWD", "2026-02-10", "10", "200");
         book.apply(older);
@@ -67,7 +70,7 @@ class LotBookTest {
 
     @Test
     void saleSpanningTwoLotsSplitsCostAndProceeds() {
-        LotBook book = new LotBook();
+        LotBook book = new LotBook(LIFO);
         Transaction older = buy("XEON", "2026-01-10", "10", "100");
         Transaction newer = buy("XEON", "2026-02-10", "5", "75");
         book.apply(older);
@@ -96,7 +99,7 @@ class LotBookTest {
 
     @Test
     void lossIsANegativeGain() {
-        LotBook book = new LotBook();
+        LotBook book = new LotBook(LIFO);
         book.apply(buy("5J50", "2026-01-10", "2", "100"));
 
         Disposal disposal = book.apply(sell("5J50", "2026-05-10", "2", "83.10")).orElseThrow();
@@ -106,7 +109,7 @@ class LotBookTest {
 
     @Test
     void partialSalesAddUpToTheOriginalCost() {
-        LotBook book = new LotBook();
+        LotBook book = new LotBook(LIFO);
         book.apply(buy("VGWD", "2026-01-10", "3", "100"));
 
         BigDecimal totalCost = BigDecimal.ZERO;
@@ -121,7 +124,7 @@ class LotBookTest {
 
     @Test
     void fractionalResidualStaysOpen() {
-        LotBook book = new LotBook();
+        LotBook book = new LotBook(LIFO);
         book.apply(buy("XEON", "2026-01-10", "1", "100"));
 
         book.apply(sell("XEON", "2026-02-10", "0.99440403", "101"));
@@ -131,7 +134,7 @@ class LotBookTest {
 
     @Test
     void uncoveredSaleIsRejectedAndLeavesTheBookUnchanged() {
-        LotBook book = new LotBook();
+        LotBook book = new LotBook(LIFO);
         book.apply(buy("VGWD", "2026-01-10", "2", "100"));
 
         assertThatThrownBy(() -> book.apply(sell("VGWD", "2026-02-10", "3", "150")))
@@ -145,7 +148,7 @@ class LotBookTest {
 
     @Test
     void lotsOfDifferentInstrumentsAreIndependent() {
-        LotBook book = new LotBook();
+        LotBook book = new LotBook(LIFO);
         book.apply(buy("VGWD", "2026-01-10", "1", "50"));
         book.apply(buy("XEON", "2026-01-11", "1", "70"));
 
@@ -160,7 +163,7 @@ class LotBookTest {
         Transaction sale = sell("VGWD", "2026-03-10", "1", "60");
         Transaction purchase = buy("VGWD", "2026-01-10", "1", "50");
 
-        LotBook book = LotBook.replay(List.of(sale, purchase));
+        LotBook book = LotBook.replay(List.of(sale, purchase), LIFO);
 
         assertThat(book.disposals())
                 .singleElement()
@@ -169,7 +172,7 @@ class LotBookTest {
 
     @Test
     void applyRejectsOperationsOutOfOrder() {
-        LotBook book = new LotBook();
+        LotBook book = new LotBook(LIFO);
         Transaction later = buy("VGWD", "2026-03-10", "1", "50");
         Transaction earlier = buy("VGWD", "2026-01-10", "1", "50");
         book.apply(later);
@@ -179,7 +182,7 @@ class LotBookTest {
 
     @Test
     void nonTradesDoNotChangeLots() {
-        LotBook book = new LotBook();
+        LotBook book = new LotBook(LIFO);
         Transaction dividend = new Transaction(
                 String.format("%064x", 99),
                 Instant.parse("2026-01-10T10:00:00Z"),
