@@ -20,7 +20,7 @@ public final class ImpliedFeeValidator implements TransactionValidator {
      * 0.5% of the trade value: above rounding, below what a commission-free broker
      * charges openly.
      */
-    public static final BigDecimal THRESHOLD = BigDecimal.valueOf(0.05);
+    public static final BigDecimal THRESHOLD = BigDecimal.valueOf(0.005);
 
     @Override
     public List<RowIssue> validate(Transaction transaction) {
@@ -34,8 +34,7 @@ public final class ImpliedFeeValidator implements TransactionValidator {
             return List.of();
         }
 
-        String percent =
-                ratio.movePointRight(2).setScale(2, RoundingMode.HALF_UP).toPlainString();
+        String percent = ratio.movePointRight(2).setScale(2, RoundingMode.HALF_UP).toPlainString();
         return List.of(
                 RowIssue.warning(transaction.fileRow(), Msg.of("warning.implied_fee", fee.toPlainString(), percent)));
     }
