@@ -33,15 +33,15 @@ import java.util.Optional;
  */
 public final class RevolutParser implements BrokerParser {
 
-    static final List<String> HEADER =
-            List.of("Date", "Ticker", "Type", "Quantity", "Price per share", "Total Amount", "Currency");
+    static final List<String> HEADER = List.of("Date", "Ticker", "Type", "Quantity", "Price per share", "Total Amount",
+            "Currency");
 
     /**
      * Operation types meaning a corporate action, which changes holdings without a
      * trade.
      */
-    private static final List<String> CORPORATE_ACTIONS =
-            List.of("STOCK SPLIT", "REVERSE SPLIT", "MERGER", "SPINOFF", "SPIN-OFF", "STOCK DIVIDEND");
+    private static final List<String> CORPORATE_ACTIONS = List.of("STOCK SPLIT", "REVERSE SPLIT", "MERGER", "SPINOFF",
+            "SPIN-OFF", "STOCK DIVIDEND");
 
     private final ValidationChain validation;
 
@@ -168,7 +168,7 @@ public final class RevolutParser implements BrokerParser {
         if (value.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(number(value.replace(",", ""), "Quantity", line));
+        return Optional.of(number(value.replace(",", "."), "Quantity", line));
     }
 
     /**
