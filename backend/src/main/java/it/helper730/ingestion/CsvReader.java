@@ -44,7 +44,7 @@ public final class CsvReader {
         StringBuilder field = new StringBuilder();
         boolean inQuotes = false;
         boolean rowStarted = false;
-        int line = 0;
+        int line = 1;
         int rowStart = 1;
 
         for (int i = 0; i < text.length(); i++) {
