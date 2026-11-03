@@ -22,10 +22,14 @@ public final class CurrentRegime implements TaxRuleSet {
     /** Share of government bond income that is taxable: 12.5 / 26 = 48.08%. */
     public static final BigDecimal GOVERNMENT_BOND_WEIGHT = new BigDecimal("0.4808");
 
-    /**
-     * Losses can be used until the fourth following year.
-     */
+    /** Losses can be used until the fourth following year. */
     public static final int LOSS_CARRY_FORWARD_YEARS = 4;
+
+    /** Payments below 12 euro are not due. */
+    public static final BigDecimal PAYMENT_THRESHOLD = new BigDecimal("12.00");
+
+    /** IVAFE on financial assets: 2 per thousand a year. */
+    public static final BigDecimal IVAFE_RATE = new BigDecimal("0.002");
 
     @Override
     public BigDecimal rate() {
@@ -91,12 +95,14 @@ public final class CurrentRegime implements TaxRuleSet {
         return LOSS_CARRY_FORWARD_YEARS;
     }
 
-    /** Payments below 12 euro are not due. */
-    public static final BigDecimal PAYMENT_THRESHOLD = new BigDecimal("12.00");
-
     @Override
     public BigDecimal paymentThreshold() {
         return PAYMENT_THRESHOLD;
+    }
+
+    @Override
+    public BigDecimal ivafeRate() {
+        return IVAFE_RATE;
     }
 
     /**

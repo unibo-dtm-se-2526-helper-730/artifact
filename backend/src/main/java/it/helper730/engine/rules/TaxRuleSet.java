@@ -43,4 +43,7 @@ public interface TaxRuleSet {
 
     /** Total tax below which nothing is paid. */
     BigDecimal paymentThreshold();
+
+    /** Yearly IVAFE rate on the value of financial assets held abroad. */
+    BigDecimal ivafeRate();
 }
