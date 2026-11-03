@@ -36,4 +36,14 @@ public record Disposal(Transaction sale, CostMethod costMethod, List<LotConsumpt
     public BigDecimal gain() {
         return Money.round(proceeds().subtract(cost()));
     }
+
+    /**
+     * Money actually gained or lost: the amount received minus what was paid for
+     * the shares sold, fees included. Differs from {@link #gain()} when the cost
+     * method ignores fees.
+     */
+    public BigDecimal cashResult() {
+        BigDecimal paid = consumptions.stream().map(LotConsumption::cashCost).reduce(BigDecimal.ZERO, BigDecimal::add);
+        return Money.round(sale.totalAmount().subtract(paid));
+    }
 }

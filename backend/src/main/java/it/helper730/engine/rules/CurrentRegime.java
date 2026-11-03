@@ -91,6 +91,14 @@ public final class CurrentRegime implements TaxRuleSet {
         return LOSS_CARRY_FORWARD_YEARS;
     }
 
+    /** Payments below 12 euro are not due. */
+    public static final BigDecimal PAYMENT_THRESHOLD = new BigDecimal("12.00");
+
+    @Override
+    public BigDecimal paymentThreshold() {
+        return PAYMENT_THRESHOLD;
+    }
+
     /**
      * Returns the taxable share of income from a UCITS fund, based on the share of
      * its assets invested in government bonds.

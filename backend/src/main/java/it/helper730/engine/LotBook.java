@@ -119,7 +119,12 @@ public final class LotBook {
             BigDecimal proceeds = i == lastConsumed ? proceedsLeft : Money.share(saleBase, part, sale.quantity());
             proceedsLeft = proceedsLeft.subtract(proceeds);
             consumptions.add(new LotConsumption(
-                    lot.buyTransactionId(), lot.acquiredAt(), part, lot.costOf(part, method.includesFees()), proceeds));
+                    lot.buyTransactionId(),
+                    lot.acquiredAt(),
+                    part,
+                    lot.costOf(part, method.includesFees()),
+                    lot.costOf(part, true),
+                    proceeds));
             if (part.compareTo(lot.quantity()) < 0) {
                 remaining.addLast(lot.remainderAfter(part));
             }

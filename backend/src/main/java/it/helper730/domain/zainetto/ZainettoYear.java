@@ -39,6 +39,12 @@ public record ZainettoYear(
         closing = List.copyOf(closing);
     }
 
+    /** A year with nothing available, used and realized. */
+    public static ZainettoYear empty(int year) {
+        return new ZainettoYear(
+                year, List.of(), List.of(), BigDecimal.ZERO, BigDecimal.ZERO, List.of(), null, List.of());
+    }
+
     /** Net loss of this year added to the Zainetto, if any. */
     public Optional<CapitalLoss> newLoss() {
         return Optional.ofNullable(realizedLoss);

@@ -11,10 +11,17 @@ import java.time.Instant;
  * @param acquiredAt       purchase instant
  * @param quantity         shares taken from the lot
  * @param cost             tax cost of those shares
+ * @param cashCost         what was actually paid for those shares, fees
+ *                         included
  * @param proceeds         part of the sale amount attributed to those shares
  */
 public record LotConsumption(
-        String buyTransactionId, Instant acquiredAt, BigDecimal quantity, BigDecimal cost, BigDecimal proceeds) {
+        String buyTransactionId,
+        Instant acquiredAt,
+        BigDecimal quantity,
+        BigDecimal cost,
+        BigDecimal cashCost,
+        BigDecimal proceeds) {
 
     /** Gain (positive) or loss (negative) on these shares, not rounded. */
     public BigDecimal gain() {

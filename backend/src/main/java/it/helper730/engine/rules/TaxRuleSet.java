@@ -40,4 +40,7 @@ public interface TaxRuleSet {
      * Number of years after the year of realization in which a loss can be used.
      */
     int lossCarryForwardYears();
+
+    /** Total tax below which nothing is paid. */
+    BigDecimal paymentThreshold();
 }
