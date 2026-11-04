@@ -3,6 +3,8 @@ package it.helper730.ingestion;
 import it.helper730.domain.Msg;
 import it.helper730.ingestion.exceptions.MalformedCsvException;
 import it.helper730.ingestion.exceptions.UnsupportedBrokerException;
+
+import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,6 +26,11 @@ public final class BrokerParserRegistry {
     /** Parse CSV text. */
     public ParseResult parse(String content) {
         return parse(csvReader.read(content));
+    }
+
+    /** Parses a UTF-8 file. */
+    public ParseResult parse(InputStream input) {
+        return parse(csvReader.read(input));
     }
 
     /** Parse a list of CSV rows. */
