@@ -34,7 +34,8 @@ public final class ImpliedFeeValidator implements TransactionValidator {
             return List.of();
         }
 
-        String percent = ratio.movePointRight(2).setScale(2, RoundingMode.HALF_UP).toPlainString();
+        String percent =
+                ratio.movePointRight(2).setScale(2, RoundingMode.HALF_UP).toPlainString();
         return List.of(
                 RowIssue.warning(transaction.fileRow(), Msg.of("warning.implied_fee", fee.toPlainString(), percent)));
     }
