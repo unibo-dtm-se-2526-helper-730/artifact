@@ -1,16 +1,14 @@
 package it.helper730.persistence.repository;
 
+import it.helper730.persistence.entity.InstrumentEntity;
 import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import it.helper730.persistence.entity.InstrumentEntity;
-
 /**
  * InstrumentRepository.
- * 
+ *
  * Repository for the instrument registry.
  */
 public interface InstrumentRepository extends JpaRepository<InstrumentEntity, String> {
