@@ -3,7 +3,6 @@ package it.helper730.config;
 import it.helper730.domain.Transaction;
 import it.helper730.ingestion.BrokerParserRegistry;
 import it.helper730.ingestion.CsvReader;
-import it.helper730.ingestion.RowIssue;
 import it.helper730.ingestion.revolut.RevolutParser;
 import it.helper730.ingestion.validation.FutureDateValidator;
 import it.helper730.ingestion.validation.ImpliedFeeValidator;
@@ -15,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * CoreConfig.
- * 
+ *
  * Exposes the framework-free core (ingestion, engine) as Spring beans.
  */
 @Configuration
@@ -30,13 +29,11 @@ public class CoreConfig {
     @Bean
     BrokerParserRegistry brokerParserRegistry(ValidationChain validation) {
         return new BrokerParserRegistry(new CsvReader(), List.of(new RevolutParser(validation))); // FIXME -- add new
-                                                                                                  // parsers here
+        // parsers here
     }
 
     @Bean
     ValidationChain validationChain(Clock clock) {
-        return new ValidationChain(List.of(
-                new FutureDateValidator(clock),
-                new ImpliedFeeValidator()));
+        return new ValidationChain(List.of(new FutureDateValidator(clock), new ImpliedFeeValidator()));
     }
 }

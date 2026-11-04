@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * CarriedLossEntity.
- * 
+ *
  * Loss realized in a year before the first import, entered manually.
  */
 @Entity
