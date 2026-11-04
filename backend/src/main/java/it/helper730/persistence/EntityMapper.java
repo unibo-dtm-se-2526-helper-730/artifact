@@ -14,8 +14,7 @@ import it.helper730.persistence.entity.TransactionEntity;
  */
 public final class EntityMapper {
 
-    private EntityMapper() {
-    }
+    private EntityMapper() {}
 
     public static TransactionEntity toEntity(Transaction t, ImportBatchEntity batch) {
         return new TransactionEntity(
@@ -58,5 +57,4 @@ public final class EntityMapper {
                 e.getGovernmentBondShare(),
                 e.getForeignWithholdingRate());
     }
-
 }
