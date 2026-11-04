@@ -1,4 +1,4 @@
-package it.helper730.persistence.entity.repository;
+package it.helper730.persistence.repository;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import it.helper730.persistence.entity.YearEndPriceEntity;
 
 /**
- * YearEndPriceRepository
+ * YearEndPriceRepository.
  * 
  * Repository for the year-end prices.
  */

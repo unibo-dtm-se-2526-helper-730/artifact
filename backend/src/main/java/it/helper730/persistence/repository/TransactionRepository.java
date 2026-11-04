@@ -1,4 +1,4 @@
-package it.helper730.persistence.entity.repository;
+package it.helper730.persistence.repository;
 
 import java.time.Instant;
 import java.util.List;
