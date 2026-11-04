@@ -53,6 +53,7 @@ public final class CsvReader {
                 if (c == QUOTE) {
                     if (i + 1 < text.length() && text.charAt(i + 1) == QUOTE) {
                         field.append(QUOTE);
+                        i++;
                     } else {
                         inQuotes = false;
                     }
