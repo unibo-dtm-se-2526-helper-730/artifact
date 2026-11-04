@@ -41,7 +41,7 @@ CREATE INDEX idx_transactions_ticker ON transactions (ticker);
 
 CREATE TABLE year_end_prices (
     id       BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    tax_year SMALLINT       NOT NULL,
+    tax_year INTEGER        NOT NULL,
     ticker   VARCHAR(20)    NOT NULL REFERENCES instruments (ticker),
     price    NUMERIC(19, 6) NOT NULL CHECK (price > 0),
     CONSTRAINT uq_year_end_prices UNIQUE (tax_year, ticker)
@@ -50,6 +50,6 @@ CREATE TABLE year_end_prices (
 CREATE TABLE carried_losses (
     id        BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     -- year in which the loss was realized; amount stored as a positive number
-    loss_year SMALLINT       NOT NULL UNIQUE,
+    loss_year INTEGER        NOT NULL UNIQUE,
     amount    NUMERIC(19, 2) NOT NULL CHECK (amount > 0)
 );
