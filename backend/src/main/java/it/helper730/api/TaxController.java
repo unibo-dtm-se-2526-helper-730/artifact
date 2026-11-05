@@ -2,6 +2,7 @@ package it.helper730.api;
 
 import static it.helper730.api.dto.Decimals.str;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import it.helper730.api.dto.TaxDtos.DeclarationDto;
 import it.helper730.api.dto.TaxDtos.IvafeDto;
 import it.helper730.api.dto.TaxDtos.TaxYearDto;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/tax")
 @RequiredArgsConstructor
+@Tag(name = "Tax", description = "Substitute tax, Zainetto, IVAFE and Modello 730 summary")
 public class TaxController {
 
     private final TaxService taxService;

@@ -1,5 +1,6 @@
 package it.helper730.api;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import it.helper730.api.dto.TaxDtos.PortfolioDto;
 import it.helper730.service.TaxService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Portfolio", description = "Current holdings at cost")
 public class PortfolioController {
 
     private final TaxService taxService;

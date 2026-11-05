@@ -1,5 +1,6 @@
 package it.helper730.api;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import it.helper730.api.dto.ImportDtos.*;
 import it.helper730.i18n.Messages;
 import it.helper730.service.ImportReport;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/v1/imports")
 @RequiredArgsConstructor
+@Tag(name = "Imports", description = "Upload of broker CSV exports and import history")
 public class ImportController {
 
     private final ImportService importService;

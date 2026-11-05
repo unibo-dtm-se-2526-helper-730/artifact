@@ -1,5 +1,6 @@
 package it.helper730.api;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import it.helper730.api.dto.Decimals;
 import it.helper730.api.dto.InstrumentDtos.InstrumentDto;
 import it.helper730.api.dto.InstrumentDtos.InstrumentRequest;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/instruments")
 @RequiredArgsConstructor
+@Tag(name = "Instruments", description = "Classification of the instruments found in the imports")
 public class InstrumentController {
 
     private final InstrumentService instrumentService;

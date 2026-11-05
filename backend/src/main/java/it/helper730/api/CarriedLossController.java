@@ -1,5 +1,6 @@
 package it.helper730.api;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import it.helper730.api.dto.CarriedLossDtos.CarriedLossDto;
 import it.helper730.api.dto.CarriedLossDtos.CarriedLossRequest;
 import it.helper730.api.dto.Decimals;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/carried-losses")
 @RequiredArgsConstructor
+@Tag(name = "Carried losses", description = "Losses from years before the first import")
 public class CarriedLossController {
 
     private final CarriedLossService carriedLossService;
