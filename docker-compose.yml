@@ -15,5 +15,21 @@ services:
       timeout: 3s
       retries: 10
 
+  backend:
+    build:
+      context: ./backend
+    image: helper-730-backend:dev
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-helper730}
+      DB_USER: ${DB_USER:-helper730}
+      DB_PASSWORD: ${DB_PASSWORD:-helper730}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   pgdata:
