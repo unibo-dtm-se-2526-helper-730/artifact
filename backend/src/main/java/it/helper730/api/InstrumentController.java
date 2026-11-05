@@ -23,7 +23,7 @@ public class InstrumentController {
 
     private final InstrumentService instrumentService;
 
-    @GetMapping("path")
+    @GetMapping()
     public List<InstrumentDto> list() {
         return instrumentService.list().stream()
                 .map(InstrumentController::toDto)
