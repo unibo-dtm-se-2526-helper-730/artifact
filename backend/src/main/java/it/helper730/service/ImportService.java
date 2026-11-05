@@ -62,7 +62,7 @@ public class ImportService {
                 .map(Transaction::ticker)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(TreeSet::new));
-        instruments.findAllById(tickers).forEach(known -> tickers.remove(known.getTicker()));
+        instruments.findAllById(tickers).forEach(known -> tickers.remove(known.ticker()));
         instruments.saveAll(tickers.stream()
                 .map(Instrument::unclassified)
                 .map(EntityMapper::toEntity)
@@ -81,7 +81,7 @@ public class ImportService {
                 .toList());
 
         issues.sort(Comparator.comparingInt(RowIssue::fileRow));
-        return new ImportReport(batch.getId(), fresh.size(), duplicates, errorRows, List.copyOf(issues));
+        return new ImportReport(batch.id(), fresh.size(), duplicates, errorRows, List.copyOf(issues));
     }
 
     @Transactional(readOnly = true)

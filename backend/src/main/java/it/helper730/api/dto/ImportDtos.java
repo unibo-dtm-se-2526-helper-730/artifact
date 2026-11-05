@@ -13,7 +13,7 @@ public final class ImportDtos {
     /**
      * RowIssueDto.
      */
-    public record RowIssueDto(int row, String severity, String code, List<Object> params) {}
+    public record RowIssueDto(int fileRow, String severity, String code, List<Object> params) {}
 
     /**
      * ImportResponse.

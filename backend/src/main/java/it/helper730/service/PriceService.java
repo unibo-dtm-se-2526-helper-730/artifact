@@ -26,7 +26,7 @@ public class PriceService {
     @Transactional(readOnly = true)
     public Map<String, BigDecimal> get(int year) {
         Map<String, BigDecimal> result = new TreeMap<>();
-        prices.findByTaxYearOrderByTickerAsc(year).forEach(p -> result.put(p.getTicker(), p.getPrice()));
+        prices.findByTaxYearOrderByTickerAsc(year).forEach(p -> result.put(p.ticker(), p.price()));
         return result;
     }
 
@@ -39,7 +39,7 @@ public class PriceService {
     @Transactional
     public Map<String, BigDecimal> replace(int year, Map<String, BigDecimal> newPrices) {
         Set<String> unknown = new TreeSet<>(newPrices.keySet());
-        instruments.findAllById(newPrices.keySet()).forEach(i -> unknown.remove(i.getTicker()));
+        instruments.findAllById(newPrices.keySet()).forEach(i -> unknown.remove(i.ticker()));
         if (!unknown.isEmpty()) {
             throw new InvalidDataException(Msg.of("error.unknown_tickers", String.join(", ", unknown)));
         }

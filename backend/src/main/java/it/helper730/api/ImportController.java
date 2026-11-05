@@ -31,13 +31,7 @@ public class ImportController {
     public List<ImportBatchDto> history() {
         return importService.history().stream()
                 .map(b -> new ImportBatchDto(
-                        b.getId(),
-                        b.getFilename(),
-                        b.getBroker(),
-                        b.getImportedAt(),
-                        b.getImported(),
-                        b.getDuplicates(),
-                        b.getErrors()))
+                        b.id(), b.filename(), b.broker(), b.importedAt(), b.imported(), b.duplicates(), b.errors()))
                 .toList();
     }
 

@@ -32,15 +32,15 @@ public final class EntityMapper {
 
     public static Transaction toDomain(TransactionEntity e) {
         return new Transaction(
-                e.getId(),
-                e.getExecutedAt(),
-                e.getOperationType(),
-                e.getTicker(),
-                e.getQuantity(),
-                e.getPricePerShare(),
-                e.getTotalAmount(),
-                e.getCurrency(),
-                e.getFileRow());
+                e.id(),
+                e.executedAt(),
+                e.operationType(),
+                e.ticker(),
+                e.quantity(),
+                e.pricePerShare(),
+                e.totalAmount(),
+                e.currency(),
+                e.fileRow());
     }
 
     public static InstrumentEntity toEntity(Instrument i) {
@@ -50,11 +50,6 @@ public final class EntityMapper {
 
     public static Instrument toDomain(InstrumentEntity e) {
         return new Instrument(
-                e.getTicker(),
-                e.getIsin(),
-                e.getName(),
-                e.getAssetClass(),
-                e.getGovernmentBondShare(),
-                e.getForeignWithholdingRate());
+                e.ticker(), e.isin(), e.name(), e.assetClass(), e.governmentBondShare(), e.foreignWithholdingRate());
     }
 }

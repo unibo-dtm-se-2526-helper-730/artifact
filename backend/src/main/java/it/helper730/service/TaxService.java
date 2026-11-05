@@ -120,11 +120,11 @@ public class TaxService {
     }
 
     private Map<Integer, BigDecimal> carriedLossMap() {
-        return carriedLosses.findAll().stream().collect(Collectors.toMap(e -> e.getLossYear(), e -> e.getAmount()));
+        return carriedLosses.findAll().stream().collect(Collectors.toMap(e -> e.lossYear(), e -> e.amount()));
     }
 
     private Map<String, BigDecimal> priceMap(int year) {
         return prices.findByTaxYearOrderByTickerAsc(year).stream()
-                .collect(Collectors.toMap(p -> p.getTicker(), p -> p.getPrice()));
+                .collect(Collectors.toMap(p -> p.ticker(), p -> p.price()));
     }
 }

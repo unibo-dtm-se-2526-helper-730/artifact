@@ -33,7 +33,7 @@ public class CarriedLossService {
     @Transactional(readOnly = true)
     public List<CarriedLoss> list() {
         return carriedLosses.findAllByOrderByLossYearAsc().stream()
-                .map(e -> new CarriedLoss(e.getLossYear(), e.getAmount()))
+                .map(e -> new CarriedLoss(e.lossYear(), e.amount()))
                 .toList();
     }
 
