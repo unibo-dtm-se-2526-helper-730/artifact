@@ -18,6 +18,7 @@ import it.helper730.api.dto.TaxDtos.PositionDto;
 import it.helper730.api.dto.TaxDtos.TaxYearDto;
 import it.helper730.api.dto.TaxDtos.ZainettoDto;
 import it.helper730.domain.LotConsumption;
+import it.helper730.domain.Msg;
 import it.helper730.domain.TaxYearResult;
 import it.helper730.domain.TaxableEvent;
 import it.helper730.domain.Transaction;
@@ -28,25 +29,30 @@ import it.helper730.domain.portfolio.Portfolio;
 import it.helper730.domain.portfolio.Position;
 import it.helper730.domain.zainetto.CapitalLoss;
 import it.helper730.domain.zainetto.ZainettoYear;
+import it.helper730.i18n.Messages;
 import it.helper730.reporting.Declaration;
 import it.helper730.reporting.DeclarationItem;
 import it.helper730.reporting.DeclarationSection;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /**
  * TaxDtoMapper.
  *
  * Converts engine and reporting results into API responses. Totals come from
  * the domain records (closingTotal, total, belowThreshold...): the API never
- * recomputes them.
+ * recomputes them. Messages are translated into the language of the request.
  */
-final class TaxDtoMapper {
+@Component
+@RequiredArgsConstructor
+class TaxDtoMapper {
 
-    private TaxDtoMapper() {}
+    private final Messages messages;
 
     // --- tax ----------------------------------------------------------------
 
-    static TaxYearDto toDto(TaxYearResult r) {
+    TaxYearDto toDto(TaxYearResult r) {
         return new TaxYearDto(
                 r.year(),
                 str(r.economicResult()),
@@ -60,10 +66,10 @@ final class TaxDtoMapper {
                 r.belowThreshold(),
                 str(r.payableTax()),
                 toDto(r.zainetto()),
-                r.events().stream().map(TaxDtoMapper::toDto).toList());
+                r.events().stream().map(this::toDto).toList());
     }
 
-    private static ZainettoDto toDto(ZainettoYear z) {
+    private ZainettoDto toDto(ZainettoYear z) {
         return new ZainettoDto(
                 losses(z.opening()),
                 losses(z.expired()),
@@ -79,15 +85,15 @@ final class TaxDtoMapper {
                 str(z.closingTotal()));
     }
 
-    private static List<LossDto> losses(List<CapitalLoss> losses) {
-        return losses.stream().map(TaxDtoMapper::toDto).toList();
+    private List<LossDto> losses(List<CapitalLoss> losses) {
+        return losses.stream().map(this::toDto).toList();
     }
 
-    private static LossDto toDto(CapitalLoss l) {
+    private LossDto toDto(CapitalLoss l) {
         return new LossDto(l.year(), str(l.amount()), str(l.remaining()), l.lastUsableYear());
     }
 
-    private static EventDto toDto(TaxableEvent e) {
+    private EventDto toDto(TaxableEvent e) {
         Transaction t = e.source();
         return new EventDto(
                 t.id(),
@@ -99,10 +105,10 @@ final class TaxDtoMapper {
                 str(e.weight()),
                 str(e.foreignTax()),
                 str(e.taxableAmount()),
-                e.consumptions().stream().map(TaxDtoMapper::toDto).toList());
+                e.consumptions().stream().map(this::toDto).toList());
     }
 
-    private static ConsumptionDto toDto(LotConsumption c) {
+    private ConsumptionDto toDto(LotConsumption c) {
         return new ConsumptionDto(
                 c.buyTransactionId(),
                 c.acquiredAt(),
@@ -115,7 +121,7 @@ final class TaxDtoMapper {
 
     // --- IVAFE --------------------------------------------------------------
 
-    static IvafeDto toDto(IvafeResult r) {
+    IvafeDto toDto(IvafeResult r) {
         return new IvafeDto(
                 r.year(),
                 str(r.rate()),
@@ -124,10 +130,10 @@ final class TaxDtoMapper {
                 r.belowThreshold(),
                 r.isComplete(),
                 r.missingPrices(),
-                r.rows().stream().map(TaxDtoMapper::toDto).toList());
+                r.rows().stream().map(this::toDto).toList());
     }
 
-    private static IvafeRowDto toDto(IvafeRow r) {
+    private IvafeRowDto toDto(IvafeRow r) {
         return new IvafeRowDto(
                 r.ticker(),
                 str(r.quantity()),
@@ -139,46 +145,39 @@ final class TaxDtoMapper {
                 str(r.finalValue()),
                 r.holdingDays(),
                 str(r.ivafe()),
-                r.notes().stream().map(MsgDto::of).toList());
+                r.notes().stream().map(this::msg).toList());
     }
 
     // --- declaration --------------------------------------------------------
 
-    static DeclarationDto toDto(Declaration d) {
+    DeclarationDto toDto(Declaration d) {
         return new DeclarationDto(
                 d.year(),
                 d.model(),
-                d.sections().stream().map(TaxDtoMapper::toDto).toList(),
-                d.warnings().stream().map(MsgDto::of).toList());
+                d.sections().stream().map(this::toDto).toList(),
+                d.warnings().stream().map(this::msg).toList());
     }
 
-    private static DeclarationSectionDto toDto(DeclarationSection s) {
+    private DeclarationSectionDto toDto(DeclarationSection s) {
         return new DeclarationSectionDto(
-                s.quadro(),
-                MsgDto.of(s.title()),
-                s.items().stream().map(TaxDtoMapper::toDto).toList());
+                s.quadro(), msg(s.title()), s.items().stream().map(this::toDto).toList());
     }
 
-    private static DeclarationItemDto toDto(DeclarationItem i) {
+    private DeclarationItemDto toDto(DeclarationItem i) {
         return new DeclarationItemDto(
-                i.key(),
-                MsgDto.of(i.description()),
-                str(i.amount()),
-                i.rigo(),
-                MsgDto.of(i.detail()),
-                str(i.secondary()));
+                i.key(), msg(i.description()), str(i.amount()), i.rigo(), msg(i.detail()), str(i.secondary()));
     }
 
     // --- portfolio ----------------------------------------------------------
 
-    static PortfolioDto toDto(Portfolio p) {
+    PortfolioDto toDto(Portfolio p) {
         return new PortfolioDto(
-                p.positions().stream().map(TaxDtoMapper::toDto).toList(),
-                p.byAssetClass().stream().map(TaxDtoMapper::toDto).toList(),
+                p.positions().stream().map(this::toDto).toList(),
+                p.byAssetClass().stream().map(this::toDto).toList(),
                 str(p.totalCost()));
     }
 
-    private static PositionDto toDto(Position x) {
+    private PositionDto toDto(Position x) {
         return new PositionDto(
                 x.ticker(),
                 x.name(),
@@ -190,7 +189,16 @@ final class TaxDtoMapper {
                 str(x.weight()));
     }
 
-    private static AssetClassWeightDto toDto(AssetClassWeight w) {
+    private AssetClassWeightDto toDto(AssetClassWeight w) {
         return new AssetClassWeightDto(w.assetClass(), str(w.cost()), str(w.weight()));
+    }
+
+    // --- messages -----------------------------------------------------------
+
+    /**
+     * Code and parameters for the client logic, text for the user; null stays null.
+     */
+    private MsgDto msg(Msg m) {
+        return m == null ? null : new MsgDto(m.code(), m.params(), messages.text(m));
     }
 }

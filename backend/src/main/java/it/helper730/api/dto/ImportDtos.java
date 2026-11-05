@@ -12,8 +12,11 @@ public final class ImportDtos {
 
     /**
      * RowIssueDto.
+     *
+     * One problem of a CSV row: message is the translated text, code and params
+     * identify it.
      */
-    public record RowIssueDto(int fileRow, String severity, String code, List<Object> params) {}
+    public record RowIssueDto(int fileRow, String severity, String code, List<Object> params, String message) {}
 
     /**
      * ImportResponse.

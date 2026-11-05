@@ -1,6 +1,7 @@
 package it.helper730.api;
 
 import it.helper730.api.dto.ImportDtos.*;
+import it.helper730.i18n.Messages;
 import it.helper730.service.ImportReport;
 import it.helper730.service.ImportService;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ImportController {
 
     private final ImportService importService;
+    private final Messages messages;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
@@ -35,13 +37,14 @@ public class ImportController {
                 .toList();
     }
 
-    private static ImportResponse toResponse(ImportReport r) {
+    private ImportResponse toResponse(ImportReport r) {
         List<RowIssueDto> issues = r.issues().stream()
                 .map(i -> new RowIssueDto(
                         i.fileRow(),
                         i.severity().name(),
                         i.msg().code(),
-                        i.msg().params()))
+                        i.msg().params(),
+                        messages.text(i.msg())))
                 .toList();
         return new ImportResponse(r.batchId(), r.imported(), r.duplicates(), r.errors(), issues);
     }

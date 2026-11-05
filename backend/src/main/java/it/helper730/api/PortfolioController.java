@@ -16,9 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class PortfolioController {
 
     private final TaxService taxService;
+    private final TaxDtoMapper mapper;
 
     @GetMapping("/api/v1/portfolio")
     public PortfolioDto portfolio() {
-        return TaxDtoMapper.toDto(taxService.portfolio());
+        return mapper.toDto(taxService.portfolio());
     }
 }

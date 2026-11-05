@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TaxController {
 
     private final TaxService taxService;
+    private final TaxDtoMapper mapper;
 
     /**
      * One summary per year. A year that cannot be computed yet (e.g. unclassified
@@ -40,17 +41,17 @@ public class TaxController {
 
     @GetMapping("/{year}")
     public TaxYearDto tax(@PathVariable int year) {
-        return TaxDtoMapper.toDto(taxService.tax(year));
+        return mapper.toDto(taxService.tax(year));
     }
 
     @GetMapping("/{year}/ivafe")
     public IvafeDto ivafe(@PathVariable int year) {
-        return TaxDtoMapper.toDto(taxService.ivafe(year));
+        return mapper.toDto(taxService.ivafe(year));
     }
 
     @GetMapping("/{year}/declaration")
     public DeclarationDto declaration(@PathVariable int year) {
-        return TaxDtoMapper.toDto(taxService.declaration(year));
+        return mapper.toDto(taxService.declaration(year));
     }
 
     private YearSummaryDto summary(int year) {
