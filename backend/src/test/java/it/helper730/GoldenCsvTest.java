@@ -77,8 +77,8 @@ class GoldenCsvTest {
         assertThat(tax.economicResult()).isEqualByComparingTo("-11.67");
         assertThat(tax.zainetto().closingTotal()).isEqualByComparingTo("16.90");
 
-        IvafeResult ivafe = new IvafeCalculator(rules).calculate(2025, operations, Map.of("VGWD", new BigDecimal("70")),
-                Map.of());
+        IvafeResult ivafe =
+                new IvafeCalculator(rules).calculate(2025, operations, Map.of("VGWD", new BigDecimal("70")), Map.of());
         assertThat(ivafe.total()).isEqualByComparingTo("0.09");
         assertThat(ivafe.rows())
                 .singleElement()
