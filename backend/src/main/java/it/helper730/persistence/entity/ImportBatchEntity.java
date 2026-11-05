@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * ImportBatchEntity.
- * 
+ *
  * One uploaded CSV file and its outcome counters.
  */
 @Entity

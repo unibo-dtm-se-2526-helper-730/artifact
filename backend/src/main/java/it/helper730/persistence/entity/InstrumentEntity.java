@@ -15,7 +15,7 @@ import lombok.Setter;
 
 /**
  * InstrumentEntity.
- * 
+ *
  * Instrument registry row. {@code assetClass} is null until the user classifies
  * the ticker.
  */

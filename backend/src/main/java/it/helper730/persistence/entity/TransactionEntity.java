@@ -16,17 +16,15 @@ import jakarta.persistence.Transient;
 import java.math.BigDecimal;
 import java.time.Instant;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.domain.Persistable;
 
 /**
  * TransactionEntity.
- * 
+ *
  * A broker transaction. The id is assigned by the application (SHA-256 of the
  * normalized row), so the entity implements {@link Persistable} to tell Spring
  * Data when it is new (and then do an insert, update otherwise).
@@ -55,6 +53,7 @@ public class TransactionEntity implements Persistable<String> {
     @JdbcTypeCode(SqlTypes.CHAR)
     @Column(length = 3)
     private String currency;
+
     private int fileRow;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -62,7 +61,7 @@ public class TransactionEntity implements Persistable<String> {
     private ImportBatchEntity batch;
 
     @Transient
-    @Getter(AccessLevel.NONE)
+    @Getter(AccessLevel.NONE) // do not generate a getter
     private boolean fresh = true;
 
     @Override
@@ -82,6 +81,7 @@ public class TransactionEntity implements Persistable<String> {
     }
 
     public TransactionEntity(
+            String id,
             Instant executedAt,
             OperationType operationType,
             String ticker,
@@ -89,7 +89,9 @@ public class TransactionEntity implements Persistable<String> {
             BigDecimal pricePerShare,
             BigDecimal totalAmount,
             String currency,
-            int fileRow) {
+            int fileRow,
+            ImportBatchEntity batch) {
+        this.id = id;
         this.executedAt = executedAt;
         this.operationType = operationType;
         this.ticker = ticker;
@@ -98,5 +100,6 @@ public class TransactionEntity implements Persistable<String> {
         this.totalAmount = totalAmount;
         this.currency = currency;
         this.fileRow = fileRow;
+        this.batch = batch;
     }
 }

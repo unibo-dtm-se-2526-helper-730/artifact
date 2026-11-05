@@ -1,18 +1,16 @@
-package it.helper730.persistence.entity.repository;
+package it.helper730.persistence.repository;
 
+import it.helper730.persistence.entity.TransactionEntity;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import it.helper730.persistence.entity.TransactionEntity;
-
 /**
  * TransactionRepository.
- * 
+ *
  * Repository for the transactions.
  */
 public interface TransactionRepository extends JpaRepository<TransactionEntity, String> {

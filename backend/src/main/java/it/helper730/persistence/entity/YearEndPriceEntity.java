@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * YearEndPriceEntity.
- * 
+ *
  * Price of a ticker at 31/12 of a tax year, entered by the user for IVAFE.
  */
 @Entity

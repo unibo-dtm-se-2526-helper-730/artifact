@@ -1,14 +1,12 @@
-package it.helper730.persistence.entity.repository;
-
-import java.util.List;
-
-import org.springframework.data.jpa.repository.JpaRepository;
+package it.helper730.persistence.repository;
 
 import it.helper730.persistence.entity.ImportBatchEntity;
+import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * ImportBatchRepository
- * 
+ * ImportBatchRepository.
+ *
  * Repository for the import batch registry.
  */
 public interface ImportBatchRepository extends JpaRepository<ImportBatchEntity, Long> {
