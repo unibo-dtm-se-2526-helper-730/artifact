@@ -39,7 +39,7 @@ class ValidatorsTest {
             assertThat(i.severity()).isEqualTo(Severity.WARNING);
             assertThat(i.fileRow()).isEqualTo(8);
             assertThat(i.msg().code()).isEqualTo("warning.implied_fee");
-            assertThat(i.msg().params()).containsExactly("1.00", "0.52");
+            assertThat(i.msg().params()).containsExactly(new BigDecimal("1.00"), new BigDecimal("0.52"));
         });
     }
 

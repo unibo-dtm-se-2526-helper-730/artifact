@@ -1,5 +1,6 @@
 package it.helper730.api;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import it.helper730.api.dto.Decimals;
 import it.helper730.api.dto.PriceDtos.PricesDto;
 import it.helper730.api.dto.PriceDtos.PricesRequest;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/prices")
 @RequiredArgsConstructor
+@Tag(name = "Prices", description = "Prices at 31/12, used for IVAFE")
 public class PriceController {
 
     private final PriceService priceService;

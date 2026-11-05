@@ -2,6 +2,7 @@ package it.helper730.api;
 
 import static it.helper730.api.dto.Decimals.str;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import it.helper730.api.dto.TaxDtos.DeclarationDto;
 import it.helper730.api.dto.TaxDtos.IvafeDto;
 import it.helper730.api.dto.TaxDtos.TaxYearDto;
@@ -24,9 +25,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/tax")
 @RequiredArgsConstructor
+@Tag(name = "Tax", description = "Substitute tax, Zainetto, IVAFE and Modello 730 summary")
 public class TaxController {
 
     private final TaxService taxService;
+    private final TaxDtoMapper mapper;
 
     /**
      * One summary per year. A year that cannot be computed yet (e.g. unclassified
@@ -40,17 +43,17 @@ public class TaxController {
 
     @GetMapping("/{year}")
     public TaxYearDto tax(@PathVariable int year) {
-        return TaxDtoMapper.toDto(taxService.tax(year));
+        return mapper.toDto(taxService.tax(year));
     }
 
     @GetMapping("/{year}/ivafe")
     public IvafeDto ivafe(@PathVariable int year) {
-        return TaxDtoMapper.toDto(taxService.ivafe(year));
+        return mapper.toDto(taxService.ivafe(year));
     }
 
     @GetMapping("/{year}/declaration")
     public DeclarationDto declaration(@PathVariable int year) {
-        return TaxDtoMapper.toDto(taxService.declaration(year));
+        return mapper.toDto(taxService.declaration(year));
     }
 
     private YearSummaryDto summary(int year) {

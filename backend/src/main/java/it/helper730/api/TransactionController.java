@@ -1,5 +1,6 @@
 package it.helper730.api;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import it.helper730.api.dto.Decimals;
 import it.helper730.api.dto.TransactionDtos.DeleteResponse;
 import it.helper730.api.dto.TransactionDtos.TransactionDto;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/transactions")
 @RequiredArgsConstructor
+@Tag(name = "Transactions", description = "Stored operations, by tax year")
 public class TransactionController {
 
     private final TransactionService transactionService;

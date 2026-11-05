@@ -53,7 +53,7 @@ class GoldenCsvTest {
         assertThat(result.warnings()).singleElement().satisfies(w -> {
             assertThat(w.fileRow()).isEqualTo(8);
             assertThat(w.msg().code()).isEqualTo("warning.implied_fee");
-            assertThat(w.msg().params()).containsExactly("1.00", "0.52");
+            assertThat(w.msg().params()).containsExactly(new BigDecimal("1.00"), new BigDecimal("0.52"));
         });
         // the same values as the operations written by hand for the engine tests, ids
         // aside

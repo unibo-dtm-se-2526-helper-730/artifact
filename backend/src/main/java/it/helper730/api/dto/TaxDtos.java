@@ -3,7 +3,6 @@ package it.helper730.api.dto;
 import it.helper730.domain.AssetClass;
 import it.helper730.domain.EventType;
 import it.helper730.domain.IncomeCategory;
-import it.helper730.domain.Msg;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -22,13 +21,7 @@ public final class TaxDtos {
      * MsgDto.
      *
      */
-    public record MsgDto(String code, List<Object> params) {
-
-        /** Null-safe conversion: optional messages stay null. */
-        public static MsgDto of(Msg msg) {
-            return msg == null ? null : new MsgDto(msg.code(), msg.params());
-        }
-    }
+    public record MsgDto(String code, List<Object> params, String text) {}
 
     // --- /tax/years ---------------------------------------------------------
 

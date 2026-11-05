@@ -140,7 +140,7 @@ class LotBookTest {
         assertThatThrownBy(() -> book.apply(sell("VGWD", "2026-02-10", "3", "150")))
                 .isInstanceOfSatisfying(UncoveredSaleException.class, e -> {
                     assertThat(e.code()).isEqualTo("UNCOVERED_SALE");
-                    assertThat(e.msg().params()).containsExactly("VGWD", 2, "3", "2");
+                    assertThat(e.msg().params()).containsExactly("VGWD", 2, new BigDecimal("3"), new BigDecimal("2"));
                 });
         assertThat(book.openQuantities().get("VGWD")).isEqualByComparingTo("2");
         assertThat(book.disposals()).isEmpty();
