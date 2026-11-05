@@ -1,12 +1,18 @@
 package it.helper730.config;
 
 import it.helper730.domain.Transaction;
+import it.helper730.engine.PortfolioCalculator;
+import it.helper730.engine.TaxCalculator;
+import it.helper730.engine.ivafe.IvafeCalculator;
+import it.helper730.engine.rules.RuleSetFactory;
+import it.helper730.engine.zainetto.CompensationStrategy;
 import it.helper730.ingestion.BrokerParserRegistry;
 import it.helper730.ingestion.CsvReader;
 import it.helper730.ingestion.revolut.RevolutParser;
 import it.helper730.ingestion.validation.FutureDateValidator;
 import it.helper730.ingestion.validation.ImpliedFeeValidator;
 import it.helper730.ingestion.validation.ValidationChain;
+import it.helper730.reporting.DeclarationBuilder;
 import java.time.Clock;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
@@ -35,5 +41,39 @@ public class CoreConfig {
     @Bean
     ValidationChain validationChain(Clock clock) {
         return new ValidationChain(List.of(new FutureDateValidator(clock), new ImpliedFeeValidator()));
+    }
+
+    @Bean
+    RuleSetFactory ruleSetFactory() {
+        return new RuleSetFactory();
+    }
+
+    /**
+     * Default Zainetto policy: the oldest losses are used first, as they expire
+     * first.
+     */
+    @Bean
+    CompensationStrategy compensationStrategy() {
+        return CompensationStrategy.OLDEST_FIRST;
+    }
+
+    @Bean
+    TaxCalculator taxCalculator(RuleSetFactory rules, CompensationStrategy strategy) {
+        return new TaxCalculator(rules, strategy);
+    }
+
+    @Bean
+    IvafeCalculator ivafeCalculator(RuleSetFactory rules) {
+        return new IvafeCalculator(rules);
+    }
+
+    @Bean
+    PortfolioCalculator portfolioCalculator(RuleSetFactory rules) {
+        return new PortfolioCalculator(rules);
+    }
+
+    @Bean
+    DeclarationBuilder declarationBuilder() {
+        return new DeclarationBuilder();
     }
 }
