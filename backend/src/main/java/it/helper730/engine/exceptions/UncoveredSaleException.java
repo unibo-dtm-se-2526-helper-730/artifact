@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 public class UncoveredSaleException extends DomainException {
 
     public UncoveredSaleException(String ticker, int fileRow, BigDecimal requested, BigDecimal available) {
-        super(Msg.of("error.uncovered_sale", ticker, fileRow, requested.toPlainString(), available.toPlainString()));
+        super(Msg.of("error.uncovered_sale", ticker, fileRow, requested, available));
     }
 
     @Override

@@ -53,7 +53,7 @@ class GoldenCsvTest {
         assertThat(result.warnings()).singleElement().satisfies(w -> {
             assertThat(w.fileRow()).isEqualTo(8);
             assertThat(w.msg().code()).isEqualTo("warning.implied_fee");
-            assertThat(w.msg().params()).containsExactly("1.00", "0.52");
+            assertThat(w.msg().params()).containsExactly(new BigDecimal("1.00"), new BigDecimal("0.52"));
         });
         // the same values as the operations written by hand for the engine tests, ids
         // aside
@@ -77,8 +77,8 @@ class GoldenCsvTest {
         assertThat(tax.economicResult()).isEqualByComparingTo("-11.67");
         assertThat(tax.zainetto().closingTotal()).isEqualByComparingTo("16.90");
 
-        IvafeResult ivafe =
-                new IvafeCalculator(rules).calculate(2025, operations, Map.of("VGWD", new BigDecimal("70")), Map.of());
+        IvafeResult ivafe = new IvafeCalculator(rules).calculate(2025, operations, Map.of("VGWD", new BigDecimal("70")),
+                Map.of());
         assertThat(ivafe.total()).isEqualByComparingTo("0.09");
         assertThat(ivafe.rows())
                 .singleElement()
