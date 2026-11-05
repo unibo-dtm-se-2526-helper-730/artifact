@@ -1,13 +1,17 @@
 package it.helper730.api;
 
-import it.helper730.api.dto.CarriedLossDto;
+import it.helper730.api.dto.CarriedLossDtos.CarriedLossDto;
+import it.helper730.api.dto.CarriedLossDtos.CarriedLossRequest;
 import it.helper730.api.dto.Decimals;
 import it.helper730.service.CarriedLossService;
 import it.helper730.service.CarriedLossService.CarriedLoss;
-import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/carried-losses")
@@ -22,9 +26,9 @@ public class CarriedLossController {
     }
 
     @PutMapping
-    public List<CarriedLossDto> replace(@RequestBody List<CarriedLossDto> body) {
+    public List<CarriedLossDto> replace(@RequestBody List<CarriedLossRequest> body) {
         List<CarriedLoss> losses = body.stream()
-                .map(d -> new CarriedLoss(d.lossYear(), d.amount() == null ? null : new BigDecimal(d.amount())))
+                .map(r -> new CarriedLoss(r.lossYear(), r.amount()))
                 .toList();
         return toDto(carriedLossService.replace(losses));
     }
