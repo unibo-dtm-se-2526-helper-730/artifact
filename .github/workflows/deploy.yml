@@ -1,0 +1,69 @@
+name: deploy
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  # tag and GitHub Release
+  contents: write
+  # images on ghcr.io
+  packages: write
+  # "released in vX.Y.Z" comments on the pull requests and issues of the release
+  issues: write
+  pull-requests: write
+
+jobs:
+  release:
+    name: Release
+    concurrency:
+      # Only one release job at a time. Strictly sequential.
+      group: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # all history: semantic-release reads the commits since the last tag
+          persist-credentials: false # semantic-release pushes the tag with its own token
+
+      - name: Get All Tags
+        run: git fetch --tags -f
+
+      # Used by the publish script to write the release version in the pom
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Get Node Version
+        id: get-node-version
+        run: echo version=$(jq -r .engines.node package.json) >> $GITHUB_OUTPUT
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ steps.get-node-version.outputs.version }}
+          cache: npm
+
+      - name: Restore Release Tooling
+        run: npm ci
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # On main: computes the version from the commits, pushes the images
+      # (.github/scripts/publish-images.sh), creates the tag and the GitHub Release.
+      # On any other branch: dry run, prints the version it would release.
+      - name: Release
+        run: npx semantic-release
+        env:
+          # RELEASE_TOKEN (personal token) is optional: without it the default token is used
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          RELEASE_DRY_RUN: ${{ github.ref_name != 'main' }}
