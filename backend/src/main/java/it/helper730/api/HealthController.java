@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/v1/health")
+@RequestMapping("/api/v1/health")
 @Tag(name = "Health", description = "Application status and version")
 public class HealthController {
 
@@ -41,5 +41,6 @@ public class HealthController {
      * @param status  the health status of the application
      * @param version the version of the application
      */
-    public record HealthResponse(String status, String version) {}
+    public record HealthResponse(String status, String version) {
+    }
 }
