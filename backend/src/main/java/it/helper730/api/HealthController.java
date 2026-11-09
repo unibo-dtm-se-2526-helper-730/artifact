@@ -41,6 +41,5 @@ public class HealthController {
      * @param status  the health status of the application
      * @param version the version of the application
      */
-    public record HealthResponse(String status, String version) {
-    }
+    public record HealthResponse(String status, String version) {}
 }
