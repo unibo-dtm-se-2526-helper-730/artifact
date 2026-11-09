@@ -1,3 +1,7 @@
+on:
+  push:
+    tags:
+      - "v*"
 jobs:
   release:
     name: Publish images
