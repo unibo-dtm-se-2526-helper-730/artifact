@@ -1,16 +1,10 @@
-name: Release
-
 on:
   push:
-    tags: ["v*"]
-
-permissions:
-  contents: write # create the GitHub Release
-  packages: write # publish the image to GHCR
-
+    tags:
+      - "v*"
 jobs:
   release:
-    name: Publish backend image
+    name: Publish images
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -21,7 +15,7 @@ jobs:
           java-version: "25"
           cache: maven
 
-      # v0.1.0 -> 0.1.0, written in the pom of this run only (never committed)
+      # v0.2.0 -> 0.2.0, written in the pom of this run only (never committed)
       - name: Set version from tag
         working-directory: backend
         run: |
@@ -30,7 +24,7 @@ jobs:
           echo "Releasing version $VERSION"
 
       # A release is published only if every test passes on this exact commit
-      - name: Build and test
+      - name: Build and test backend
         working-directory: backend
         run: ./mvnw -B verify
 
@@ -42,9 +36,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Image name and tags: 0.1.0, 0.1 and latest, plus the OCI labels
-      # that link the package to this repository
-      - id: meta
+      # ---- backend image ----
+      - id: meta-backend
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository_owner }}/helper-730-backend
@@ -57,8 +50,25 @@ jobs:
         with:
           context: backend
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta-backend.outputs.tags }}
+          labels: ${{ steps.meta-backend.outputs.labels }}
+
+      # ---- frontend image (its Dockerfile runs the type check and the build) ----
+      - id: meta-frontend
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/helper-730-frontend
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: frontend
+          push: true
+          tags: ${{ steps.meta-frontend.outputs.tags }}
+          labels: ${{ steps.meta-frontend.outputs.labels }}
 
       # Release notes are generated from the titles of the merged pull requests
       - name: Create GitHub Release
