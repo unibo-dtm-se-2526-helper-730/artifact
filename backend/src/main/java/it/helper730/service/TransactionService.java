@@ -5,6 +5,7 @@ import it.helper730.persistence.EntityMapper;
 import it.helper730.persistence.repository.ImportBatchRepository;
 import it.helper730.persistence.repository.InstrumentRepository;
 import it.helper730.persistence.repository.TransactionRepository;
+import it.helper730.persistence.repository.YearEndPriceRepository;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -19,6 +20,7 @@ public class TransactionService {
     private final TransactionRepository transactions;
     private final ImportBatchRepository batches;
     private final InstrumentRepository instruments;
+    private final YearEndPriceRepository prices;
 
     /**
      * All transactions, or those of one tax year.
@@ -32,10 +34,10 @@ public class TransactionService {
     }
 
     /**
-     * Deletes every transaction and the import history; optionally also the
-     * instruments left unused.
-     * Transactions go first: without ON DELETE CASCADE the batches cannot be
-     * removed while referenced.
+     * Deletes every transaction and the import history. With includeInstruments it
+     * starts from scratch: year-end prices go too (they refer to the instruments),
+     * then the instruments. Order follows the foreign keys: children before
+     * parents.
      */
     @Transactional
     public DeleteResult deleteAll(boolean includeInstruments) {
@@ -43,7 +45,11 @@ public class TransactionService {
         int imports = (int) batches.count();
         transactions.deleteAllInBatch();
         batches.deleteAllInBatch();
-        int removed = includeInstruments ? instruments.deleteUnused() : 0;
+        int removed = 0;
+        if (includeInstruments) {
+            prices.deleteAllInBatch();
+            removed = instruments.deleteUnused();
+        }
         return new DeleteResult(tx, imports, removed);
     }
 
