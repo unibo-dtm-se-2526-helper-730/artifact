@@ -182,6 +182,19 @@ class ApiIntegrationIT {
         mvc.perform(get(API + "/imports")).andExpect(jsonPath("$", hasSize(0)));
     }
 
+    @Test
+    void deleteAllWithInstrumentsAlsoRemovesTheirPrices() throws Exception {
+        upload(golden());
+        putVgwdPrice(2025, "70");
+
+        mvc.perform(delete(API + "/transactions").param("instruments", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.instruments").value(5));
+
+        assertThat(count("year_end_prices")).isZero();
+        assertThat(count("instruments")).isZero();
+    }
+
     // --- helpers ------------------------------------------------------------
 
     private static byte[] golden() throws IOException {

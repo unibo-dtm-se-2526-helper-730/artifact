@@ -16,13 +16,14 @@ public interface InstrumentRepository extends JpaRepository<InstrumentEntity, St
     List<InstrumentEntity> findAllByOrderByTickerAsc();
 
     /**
-     * Deletes instruments no longer referenced by any transaction. Returns how many
-     * were removed.
+     * Deletes instruments no longer referenced by transactions or year-end prices.
+     * Returns how many were removed.
      */
     @Modifying
     @Query("""
             delete from InstrumentEntity i
             where i.ticker not in (select t.ticker from TransactionEntity t where t.ticker is not null)
+              and i.ticker not in (select p.ticker from YearEndPriceEntity p)
             """)
     int deleteUnused();
 }
