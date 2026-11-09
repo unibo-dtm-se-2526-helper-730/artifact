@@ -11,7 +11,14 @@ interface Props {
 }
 
 /** Modal confirmation built on the native <dialog>: focus trap and Esc come for free. */
-export function ConfirmDialog({ title, children, confirmLabel, danger, onConfirm, onCancel }: Props) {
+export function ConfirmDialog({
+  title,
+  children,
+  confirmLabel,
+  danger,
+  onConfirm,
+  onCancel,
+}: Props) {
   const { t } = useI18n();
   const ref = useRef<HTMLDialogElement>(null);
 

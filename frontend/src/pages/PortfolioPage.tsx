@@ -8,7 +8,14 @@ import { useLoad } from '../useLoad';
 
 /** Six categorical slots (validated for color-vision deficiencies); further positions go into "Other". */
 const MAX_SLICES = 6;
-const SERIES = ['var(--series-1)', 'var(--series-2)', 'var(--series-3)', 'var(--series-4)', 'var(--series-5)', 'var(--series-6)'];
+const SERIES = [
+  'var(--series-1)',
+  'var(--series-2)',
+  'var(--series-3)',
+  'var(--series-4)',
+  'var(--series-5)',
+  'var(--series-6)',
+];
 
 export function PortfolioPage() {
   const { t, lang } = useI18n();
@@ -19,7 +26,12 @@ export function PortfolioPage() {
   // positions arrive sorted by cost: colors follow that stable order
   const items = p
     ? view === 'ticker'
-      ? p.positions.map((x) => ({ key: x.ticker, label: x.ticker, weight: Number(x.weight), cost: x.cost }))
+      ? p.positions.map((x) => ({
+          key: x.ticker,
+          label: x.ticker,
+          weight: Number(x.weight),
+          cost: x.cost,
+        }))
       : p.by_asset_class.map((c) => ({
           key: c.asset_class ?? 'null',
           label: t(`class.${c.asset_class ?? 'null'}`),
@@ -58,7 +70,11 @@ export function PortfolioPage() {
       {p && p.positions.length > 0 && (
         <>
           <div className="segmented" role="group">
-            <button type="button" aria-pressed={view === 'ticker'} onClick={() => setView('ticker')}>
+            <button
+              type="button"
+              aria-pressed={view === 'ticker'}
+              onClick={() => setView('ticker')}
+            >
               {t('portfolio.byTicker')}
             </button>
             <button type="button" aria-pressed={view === 'class'} onClick={() => setView('class')}>

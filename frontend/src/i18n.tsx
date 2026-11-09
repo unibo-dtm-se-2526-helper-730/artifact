@@ -47,7 +47,8 @@ const it = {
   'import.confirmText': 'L’operazione non si può annullare: dovrai reimportare i file.',
   'import.alsoInstruments': 'Elimina anche gli strumenti rimasti senza operazioni',
   'import.delete': 'Elimina',
-  'import.deleted': 'Eliminate {transactions} operazioni, {imports} import e {instruments} strumenti.',
+  'import.deleted':
+    'Eliminate {transactions} operazioni, {imports} import e {instruments} strumenti.',
 
   'instruments.title': 'Classifica gli strumenti',
   'instruments.intro': 'Il calcolo parte solo quando ogni strumento ha un tipo.',
@@ -104,7 +105,8 @@ const it = {
   'summary.unclassified': 'Per calcolare il {year} classifica prima questi strumenti: {tickers}.',
   'summary.goInstruments': 'Vai a Strumenti',
   'summary.events': 'Da dove viene ogni euro',
-  'summary.eventsHint': 'Clicca una vendita per vedere i lotti di acquisto che ha consumato (LIFO).',
+  'summary.eventsHint':
+    'Clicca una vendita per vedere i lotti di acquisto che ha consumato (LIFO).',
   'summary.category': 'Categoria',
   'summary.amount': 'Importo',
   'summary.rate': 'Aliquota',
@@ -211,7 +213,8 @@ const en: Record<Key, string> = {
   'import.confirmText': 'This cannot be undone: you will have to import the files again.',
   'import.alsoInstruments': 'Also delete the instruments left without transactions',
   'import.delete': 'Delete',
-  'import.deleted': 'Deleted {transactions} transactions, {imports} imports and {instruments} instruments.',
+  'import.deleted':
+    'Deleted {transactions} transactions, {imports} imports and {instruments} instruments.',
 
   'instruments.title': 'Classify the instruments',
   'instruments.intro': 'The calculation starts only when every instrument has a type.',
@@ -298,7 +301,8 @@ const en: Record<Key, string> = {
   'declaration.amount': 'Amount',
   'declaration.detail': 'Other columns',
   'declaration.secondary': 'Related amount',
-  'declaration.disclaimer': 'A filing aid: always check the rows against the official instructions of the year.',
+  'declaration.disclaimer':
+    'A filing aid: always check the rows against the official instructions of the year.',
   'declaration.empty': 'No quadro to fill in for this year.',
 
   'ivafe.title': 'IVAFE {year}',
@@ -367,7 +371,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, [lang]);
 
   const t: Translate = (key, vars) =>
-    dictionaries[lang][key].replace(/\{(\w+)\}/g, (_, name: string) => String(vars?.[name] ?? `{${name}}`));
+    dictionaries[lang][key].replace(/\{(\w+)\}/g, (_, name: string) =>
+      String(vars?.[name] ?? `{${name}}`),
+    );
 
   return <I18nContext.Provider value={{ lang, setLang, t }}>{children}</I18nContext.Provider>;
 }

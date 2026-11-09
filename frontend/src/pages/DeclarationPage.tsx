@@ -5,10 +5,17 @@ import { useI18n } from '../i18n';
 import { useLoad } from '../useLoad';
 
 /** Modello 730 summary: one card per quadro (T, M, W), texts translated by the backend. */
-export function DeclarationPage({ year, onGoToInstruments }: { year: number; onGoToInstruments: () => void }) {
+export function DeclarationPage({
+  year,
+  onGoToInstruments,
+}: {
+  year: number;
+  onGoToInstruments: () => void;
+}) {
   const { t, lang } = useI18n();
   const declaration = useLoad(() => api.declaration(year), [year]);
-  const unclassified = declaration.error instanceof ApiError && declaration.error.code === 'UNCLASSIFIED_INSTRUMENTS';
+  const unclassified =
+    declaration.error instanceof ApiError && declaration.error.code === 'UNCLASSIFIED_INSTRUMENTS';
   const d = declaration.data;
 
   return (
@@ -59,7 +66,9 @@ export function DeclarationPage({ year, onGoToInstruments }: { year: number; onG
                       <td>{item.description.text}</td>
                       <td className="num">{money(item.amount, lang)}</td>
                       <td className="small">{item.detail?.text ?? ''}</td>
-                      <td className="num">{item.secondary == null ? '' : money(item.secondary, lang)}</td>
+                      <td className="num">
+                        {item.secondary == null ? '' : money(item.secondary, lang)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

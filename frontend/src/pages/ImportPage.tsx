@@ -98,7 +98,11 @@ export function ImportPage({ onDataChanged }: { onDataChanged: () => void }) {
       {result && (
         <>
           <Notice tone={result.errors > 0 ? 'warning' : 'success'}>
-            {t('import.result', { imported: result.imported, duplicates: result.duplicates, errors: result.errors })}
+            {t('import.result', {
+              imported: result.imported,
+              duplicates: result.duplicates,
+              errors: result.errors,
+            })}
           </Notice>
           {result.issues.length > 0 && (
             <table className="table">
@@ -175,7 +179,11 @@ export function ImportPage({ onDataChanged }: { onDataChanged: () => void }) {
         >
           <p>{t('import.confirmText')}</p>
           <label className="checkbox">
-            <input type="checkbox" checked={alsoInstruments} onChange={(e) => setAlsoInstruments(e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={alsoInstruments}
+              onChange={(e) => setAlsoInstruments(e.target.checked)}
+            />
             {t('import.alsoInstruments')}
           </label>
         </ConfirmDialog>
