@@ -6,6 +6,11 @@ jobs:
   release:
     name: Publish images
     runs-on: ubuntu-latest
+    permissions:
+      # needed for "gh release create"
+      contents: write
+      # needed for push su ghcr.io
+      packages: write
     steps:
       - uses: actions/checkout@v5
 
