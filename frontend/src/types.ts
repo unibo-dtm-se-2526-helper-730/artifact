@@ -91,13 +91,7 @@ export interface InstrumentRequest {
 }
 
 export type OperationType =
-  | 'BUY'
-  | 'SELL'
-  | 'DIVIDEND'
-  | 'COUPON'
-  | 'CASH_TOP_UP'
-  | 'CASH_WITHDRAWAL'
-  | 'CUSTODY_FEE';
+  'BUY' | 'SELL' | 'DIVIDEND' | 'COUPON' | 'CASH_TOP_UP' | 'CASH_WITHDRAWAL' | 'CUSTODY_FEE';
 
 export interface Transaction {
   id: string;

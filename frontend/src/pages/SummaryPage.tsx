@@ -18,14 +18,20 @@ export function SummaryPage({ year, onDataChanged, onGoToInstruments }: Props) {
   const tax = useLoad(() => api.tax(year), [year]);
 
   // 409: the calculation needs classified instruments; show which ones and where to go
-  const unclassified = tax.error instanceof ApiError && tax.error.code === 'UNCLASSIFIED_INSTRUMENTS';
+  const unclassified =
+    tax.error instanceof ApiError && tax.error.code === 'UNCLASSIFIED_INSTRUMENTS';
 
   return (
     <section>
       <h1>{t('summary.title', { year })}</h1>
       {unclassified && (
         <Notice tone="warning">
-          <p>{t('summary.unclassified', { year, tickers: (tax.error as ApiError).problem?.tickers?.join(', ') ?? '' })}</p>
+          <p>
+            {t('summary.unclassified', {
+              year,
+              tickers: (tax.error as ApiError).problem?.tickers?.join(', ') ?? '',
+            })}
+          </p>
           <button type="button" className="button small" onClick={onGoToInstruments}>
             {t('summary.goInstruments')}
           </button>
@@ -57,12 +63,16 @@ function Result({ tax }: { tax: TaxYear }) {
         <div>
           <p className="muted">{t('summary.economic', { year: tax.year })}</p>
           <p className={`hero-value ${result < 0 ? 'negative' : ''}`}>
-            {t(result < 0 ? 'summary.lost' : 'summary.gained', { amount: money(String(Math.abs(result)), lang) })}
+            {t(result < 0 ? 'summary.lost' : 'summary.gained', {
+              amount: money(String(Math.abs(result)), lang),
+            })}
           </p>
         </div>
         <div>
           <p className="hero-value">
-            {owed ? t('summary.owe', { amount: money(tax.payable_tax, lang) }) : t('summary.nothing')}
+            {owed
+              ? t('summary.owe', { amount: money(tax.payable_tax, lang) })
+              : t('summary.nothing')}
           </p>
           {tax.below_threshold && Number(tax.total_tax) > 0 && (
             <p className="muted">
@@ -167,10 +177,14 @@ function Events({ events, rate }: { events: TaxEvent[]; rate: string }) {
                   <td>{e.ticker}</td>
                   <td>{t(`event.${e.type}`)}</td>
                   <td>{t(`cat.${e.category}`)}</td>
-                  <td className={`num ${Number(e.amount) < 0 ? 'negative' : ''}`}>{money(e.amount, lang)}</td>
+                  <td className={`num ${Number(e.amount) < 0 ? 'negative' : ''}`}>
+                    {money(e.amount, lang)}
+                  </td>
                   {/* a loss is not taxed: it goes into the Zainetto, so no rate */}
                   <td className="num">
-                    {e.type === 'CAPITAL_LOSS' ? '–' : percent(Number(rate) * Number(e.weight), lang)}
+                    {e.type === 'CAPITAL_LOSS'
+                      ? '–'
+                      : percent(Number(rate) * Number(e.weight), lang)}
                   </td>
                   <td className="num">{money(e.taxable_amount, lang)}</td>
                 </tr>
@@ -194,7 +208,9 @@ function Events({ events, rate }: { events: TaxEvent[]; rate: string }) {
                               <td className="num">{quantity(c.quantity, lang)}</td>
                               <td className="num">{money(c.cost, lang)}</td>
                               <td className="num">{money(c.proceeds, lang)}</td>
-                              <td className={`num ${Number(c.gain) < 0 ? 'negative' : ''}`}>{money(c.gain, lang)}</td>
+                              <td className={`num ${Number(c.gain) < 0 ? 'negative' : ''}`}>
+                                {money(c.gain, lang)}
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -229,7 +245,11 @@ function CarriedLosses({ onSaved }: { onSaved: () => void }) {
     setError(null);
     setMessage(null);
     try {
-      setRows(await api.saveCarriedLosses(current.map((r) => ({ ...r, amount: r.amount.replace(',', '.') }))));
+      setRows(
+        await api.saveCarriedLosses(
+          current.map((r) => ({ ...r, amount: r.amount.replace(',', '.') })),
+        ),
+      );
       setMessage('saved');
       onSaved();
     } catch (e) {
@@ -276,7 +296,9 @@ function CarriedLosses({ onSaved }: { onSaved: () => void }) {
         <button
           type="button"
           className="button secondary"
-          onClick={() => setRows([...current, { loss_year: new Date().getFullYear() - 1, amount: '' }])}
+          onClick={() =>
+            setRows([...current, { loss_year: new Date().getFullYear() - 1, amount: '' }])
+          }
         >
           {t('carried.add')}
         </button>

@@ -11,7 +11,15 @@ import { SummaryPage } from './pages/SummaryPage';
 import { TransactionsPage } from './pages/TransactionsPage';
 import { useLoad } from './useLoad';
 
-const PAGES = ['import', 'instruments', 'transactions', 'summary', 'declaration', 'ivafe', 'portfolio'] as const;
+const PAGES = [
+  'import',
+  'instruments',
+  'transactions',
+  'summary',
+  'declaration',
+  'ivafe',
+  'portfolio',
+] as const;
 type Page = (typeof PAGES)[number];
 
 /** Pages computed for one tax year: they need the year menu. */
@@ -58,7 +66,12 @@ export function App() {
         </div>
         <nav>
           {PAGES.map((p) => (
-            <a key={p} href={`#${p}`} className={p === page ? 'active' : ''} aria-current={p === page ? 'page' : undefined}>
+            <a
+              key={p}
+              href={`#${p}`}
+              className={p === page ? 'active' : ''}
+              aria-current={p === page ? 'page' : undefined}
+            >
               {t(`nav.${p}`)}
             </a>
           ))}
@@ -112,9 +125,15 @@ export function App() {
                 />
               )}
               {page === 'declaration' && year != null && (
-                <DeclarationPage key={`${year}-${lang}`} year={year} onGoToInstruments={() => go('instruments')} />
+                <DeclarationPage
+                  key={`${year}-${lang}`}
+                  year={year}
+                  onGoToInstruments={() => go('instruments')}
+                />
               )}
-              {page === 'ivafe' && year != null && <IvafePage key={`${year}-${lang}`} year={year} />}
+              {page === 'ivafe' && year != null && (
+                <IvafePage key={`${year}-${lang}`} year={year} />
+              )}
               {page === 'portfolio' && <PortfolioPage key={lang} />}
             </>
           )}

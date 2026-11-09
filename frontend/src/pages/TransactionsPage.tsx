@@ -38,7 +38,9 @@ export function TransactionsPage({ year }: { year: number }) {
               <tr key={tx.id}>
                 <td>{dateTime(tx.executed_at, lang)}</td>
                 <td>
-                  <span className={`badge badge-op-${tx.type.toLowerCase()}`}>{t(`op.${tx.type as 'BUY'}`)}</span>
+                  <span className={`badge badge-op-${tx.type.toLowerCase()}`}>
+                    {t(`op.${tx.type as 'BUY'}`)}
+                  </span>
                 </td>
                 {/* the full instrument name appears on hover */}
                 <td title={names.get(tx.ticker ?? '') ?? undefined}>{tx.ticker}</td>

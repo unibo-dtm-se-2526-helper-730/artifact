@@ -1,0 +1,150 @@
+name: CI/CD
+
+on:
+  push:
+    branches-ignore:
+      - 'dependabot/**'
+      - 'renovate/**'
+    paths-ignore:
+      - '.gitignore'
+      - 'LICENSE'
+      - 'README.md'
+  pull_request:
+  workflow_dispatch:
+
+# A new push to the same branch cancels the run still in progress,
+# except on main, where a run may be in the middle of a release
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    name: Preliminary Checks
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '26'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Restore Development Environment
+        working-directory: frontend
+        run: npm ci
+
+      - name: Check code is syntactically correct (backend)
+        working-directory: backend
+        run: ./mvnw -B -ntp test-compile
+
+      - name: Check code is syntactically correct (frontend)
+        working-directory: frontend
+        run: npm run typecheck
+
+      # SpotBugs; exclusions with their reasons in backend/spotbugs-exclude.xml
+      - name: Static Checks (backend)
+        working-directory: backend
+        run: ./mvnw -B -ntp spotbugs:check
+
+      # ESLint
+      - name: Static Checks (frontend)
+        working-directory: frontend
+        run: npm run lint
+
+      # Fix locally with: ./mvnw spotless:apply
+      - name: Format Check (backend)
+        working-directory: backend
+        run: ./mvnw -B -ntp spotless:check
+
+      # Fix locally with: npm run format
+      - name: Format Check (frontend)
+        working-directory: frontend
+        run: npm run format:check
+
+      # Unit tests, integration tests on PostgreSQL (failsafe + Testcontainers)
+      # and the JaCoCo report in target/site/jacoco
+      - name: Test with Coverage
+        working-directory: backend
+        run: ./mvnw -B -ntp verify
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report-${{ github.sha }}
+          path: backend/target/site/jacoco
+          if-no-files-found: ignore
+          overwrite: true
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      # Fails the check if an image does not build; nothing is published here
+      - name: Build Docker images
+        run: |
+          docker build -t helper-730-backend:ci backend
+          docker build -t helper-730-frontend:ci frontend
+
+  test:
+    needs: check
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+        # The code targets Java 25 (java.version in the pom): older JDKs cannot compile it
+        java-version:
+          - '25'
+          - '26'
+    runs-on: ${{ matrix.os }}
+    name: Test on Java ${{ matrix.java-version }}, on ${{ matrix.os }}
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
+        working-directory: backend
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java-version }}
+          cache: maven
+
+      # The integration tests need Linux containers (Testcontainers + PostgreSQL),
+      # which only the Linux runners provide: Windows and macOS run the unit tests.
+      # Coverage is measured once, in the check job.
+      - name: Test
+        run: ./mvnw -B -ntp ${{ runner.os == 'Linux' && 'verify' || 'test' }} -Djacoco.skip=true
+
+  deploy:
+    name: Deploy
+    # Pull requests are checked and tested, never released
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: write
+      packages: write
+      issues: write
+      pull-requests: write
+    needs:
+      - test
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit

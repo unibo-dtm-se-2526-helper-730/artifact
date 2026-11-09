@@ -93,7 +93,8 @@ export const api = {
     request<Prices>(`/prices/${year}`, json('PUT', { prices })),
 
   carriedLosses: () => request<CarriedLoss[]>('/carried-losses'),
-  saveCarriedLosses: (losses: CarriedLoss[]) => request<CarriedLoss[]>('/carried-losses', json('PUT', losses)),
+  saveCarriedLosses: (losses: CarriedLoss[]) =>
+    request<CarriedLoss[]>('/carried-losses', json('PUT', losses)),
 
   years: () => request<YearSummary[]>('/tax/years'),
   tax: (year: number) => request<TaxYear>(`/tax/${year}`),

@@ -40,7 +40,11 @@ export function InstrumentsPage({ onDataChanged }: { onDataChanged: () => void }
             </thead>
             <tbody>
               {instruments.data.map((instrument) => (
-                <InstrumentRow key={instrument.ticker} instrument={instrument} onSaved={onDataChanged} />
+                <InstrumentRow
+                  key={instrument.ticker}
+                  instrument={instrument}
+                  onSaved={onDataChanged}
+                />
               ))}
             </tbody>
           </table>
@@ -57,7 +61,9 @@ function InstrumentRow({ instrument, onSaved }: { instrument: Instrument; onSave
   const [isin, setIsin] = useState(instrument.isin ?? '');
   const [assetClass, setAssetClass] = useState<AssetClass | null>(instrument.asset_class);
   const [govShare, setGovShare] = useState(fractionToPercent(instrument.government_bond_share));
-  const [withholding, setWithholding] = useState(fractionToPercent(instrument.foreign_withholding_rate));
+  const [withholding, setWithholding] = useState(
+    fractionToPercent(instrument.foreign_withholding_rate),
+  );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<unknown>(null);
 
@@ -93,7 +99,12 @@ function InstrumentRow({ instrument, onSaved }: { instrument: Instrument; onSave
           <input className="input" value={name} onChange={(e) => setName(e.target.value)} />
         </td>
         <td>
-          <input className="input" value={isin} maxLength={12} onChange={(e) => setIsin(e.target.value)} />
+          <input
+            className="input"
+            value={isin}
+            maxLength={12}
+            onChange={(e) => setIsin(e.target.value)}
+          />
         </td>
         <td>
           <select

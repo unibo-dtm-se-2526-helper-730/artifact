@@ -12,13 +12,13 @@ Start the backend first (`docker compose up -d db backend`, or `mvn spring-boot:
 
 ## Structure
 
-| Path | Content |
-|---|---|
-| `src/api.ts` | One function per endpoint; errors become `ApiError` with the translated `detail` |
-| `src/types.ts` | Shapes of the JSON returned by the backend |
-| `src/i18n.tsx` | Interface texts in Italian and English; the backend translates its own messages |
-| `src/format.ts` | Display formatting of amounts, quantities, percentages and dates |
-| `src/useLoad.ts` | Loads data and reloads it when the inputs change |
-| `src/pages/` | One component per tab of the sidebar |
-| `src/components/` | Notice, confirmation dialog, donut chart |
-| `src/styles.css` | Single light theme, palette of the brief, Neuton font (bundled from `@fontsource/neuton`) |
+| Path              | Content                                                                                   |
+| ----------------- | ----------------------------------------------------------------------------------------- |
+| `src/api.ts`      | One function per endpoint; errors become `ApiError` with the translated `detail`          |
+| `src/types.ts`    | Shapes of the JSON returned by the backend                                                |
+| `src/i18n.tsx`    | Interface texts in Italian and English; the backend translates its own messages           |
+| `src/format.ts`   | Display formatting of amounts, quantities, percentages and dates                          |
+| `src/useLoad.ts`  | Loads data and reloads it when the inputs change                                          |
+| `src/pages/`      | One component per tab of the sidebar                                                      |
+| `src/components/` | Notice, confirmation dialog, donut chart                                                  |
+| `src/styles.css`  | Single light theme, palette of the brief, Neuton font (bundled from `@fontsource/neuton`) |

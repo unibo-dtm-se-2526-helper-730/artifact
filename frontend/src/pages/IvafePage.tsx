@@ -12,7 +12,10 @@ import { useLoad } from '../useLoad';
  */
 export function IvafePage({ year }: { year: number }) {
   const { t, lang } = useI18n();
-  const data = useLoad(() => Promise.all([api.ivafe(year), api.prices(year), api.prices(year - 1)]), [year]);
+  const data = useLoad(
+    () => Promise.all([api.ivafe(year), api.prices(year), api.prices(year - 1)]),
+    [year],
+  );
 
   const [ivafe, prices, previous] = data.data ?? [null, null, null];
 
@@ -28,12 +31,16 @@ export function IvafePage({ year }: { year: number }) {
               <p className="muted">{t('ivafe.total')}</p>
               <p className="hero-value">{money(ivafe.total, lang)}</p>
               {ivafe.below_threshold && (
-                <p className="muted">{t('ivafe.below', { threshold: money(ivafe.payment_threshold, lang) })}</p>
+                <p className="muted">
+                  {t('ivafe.below', { threshold: money(ivafe.payment_threshold, lang) })}
+                </p>
               )}
             </div>
           </div>
           {!ivafe.complete && (
-            <Notice tone="warning">{t('ivafe.missing', { tickers: ivafe.missing_prices.join(', ') })}</Notice>
+            <Notice tone="warning">
+              {t('ivafe.missing', { tickers: ivafe.missing_prices.join(', ') })}
+            </Notice>
           )}
 
           {ivafe.rows.length === 0 ? (
