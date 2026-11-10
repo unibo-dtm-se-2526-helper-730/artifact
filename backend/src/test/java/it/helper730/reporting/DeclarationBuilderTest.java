@@ -17,8 +17,13 @@ import it.helper730.engine.zainetto.CompensationStrategy;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 class DeclarationBuilderTest {
@@ -42,7 +47,13 @@ class DeclarationBuilderTest {
             Map<String, BigDecimal> prices) {
         TaxYearResult tax = taxCalculator.calculate(year, operations, instruments, carriedLosses);
         IvafeResult ivafe = ivafeCalculator.calculate(year, operations, prices, Map.of());
-        return builder.build(tax, ivafe, instruments, "LT");
+        // every holding comes from Revolut, as in the golden file
+        Map<String, Set<String>> countries = operations.stream()
+                .map(Transaction::ticker)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toMap(t -> t, t -> Set.of("LT")));
+        return builder.build(tax, ivafe, instruments, countries);
     }
 
     private static DeclarationItem item(Declaration declaration, String quadro, String key) {
@@ -150,5 +161,22 @@ class DeclarationBuilderTest {
 
         assertThat(declaration.sections()).isEmpty();
         assertThat(declaration.warnings()).isEmpty();
+    }
+
+    @Test
+    void theStateInQuadroWComesFromTheBrokerOfEachHolding() {
+        TaxYearResult tax = taxCalculator.calculate(2026, GoldenData.operations(), GoldenData.instruments(), Map.of());
+        IvafeResult ivafe = ivafeCalculator.calculate(2026, GoldenData.operations(), GOLDEN_PRICES_2026, Map.of());
+        Map<String, Set<String>> countries = new HashMap<>();
+        GoldenData.instruments().keySet().forEach(t -> countries.put(t, Set.of("DE")));
+        countries.put("VGWD", new TreeSet<>(Set.of("DE", "LT")));
+
+        Declaration declaration = builder.build(tax, ivafe, GoldenData.instruments(), countries);
+
+        // Germany for the holdings of one broker, no code for VGWD, held at two
+        assertThat(declaration.section("W").orElseThrow().items())
+                .extracting(i -> i.detail().params().get(2))
+                .contains("094", "");
+        assertThat(declaration.warnings()).containsOnlyOnce(Msg.of("declaration.country_not_unique", "VGWD", "DE, LT"));
     }
 }

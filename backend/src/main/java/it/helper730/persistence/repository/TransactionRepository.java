@@ -30,4 +30,23 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
 
     @Query("select distinct t.ticker from TransactionEntity t where t.ticker is not null")
     Set<String> findDistinctTickers();
+
+    /** Pairs of ticker and broker it was imported from. */
+    @Query("""
+            select distinct t.ticker as ticker, b.broker as broker
+            from TransactionEntity t join t.batch b
+            where t.ticker is not null
+            """)
+    List<TickerBroker> findTickerBrokers();
+
+    /**
+     * TickerBroker.
+     *
+     * A ticker and the broker of one of its imports.
+     */
+    interface TickerBroker {
+        String getTicker();
+
+        String getBroker();
+    }
 }

@@ -18,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Builds the Modello 730 values (quadri T, M and W) from the tax and IVAFE
@@ -38,7 +39,10 @@ public final class DeclarationBuilder {
      *                      securities are held
      */
     public Declaration build(
-            TaxYearResult tax, IvafeResult ivafe, Map<String, Instrument> instruments, String brokerCountry) {
+            TaxYearResult tax,
+            IvafeResult ivafe,
+            Map<String, Instrument> instruments,
+            Map<String, Set<String>> countriesByTicker) {
         if (tax.year() != ivafe.year()) {
             throw new IllegalArgumentException("Tax and IVAFE results of different years");
         }
@@ -48,7 +52,7 @@ public final class DeclarationBuilder {
 
         addIfNotEmpty(sections, "T", "declaration.quadro_t", quadroT(tax, layout));
         addIfNotEmpty(sections, "M", "declaration.quadro_m", quadroM(tax, layout, instruments, warnings));
-        addIfNotEmpty(sections, "W", "declaration.quadro_w", quadroW(ivafe, layout, brokerCountry, warnings));
+        addIfNotEmpty(sections, "W", "declaration.quadro_w", quadroW(ivafe, layout, countriesByTicker, warnings));
 
         tax.excludedEvents().forEach(e -> warnings.add(Msg.of("declaration.excluded_instrument", e.ticker())));
         return new Declaration(tax.year(), Mappings.modelName(tax.year()), sections, warnings);
@@ -145,13 +149,8 @@ public final class DeclarationBuilder {
         return items;
     }
 
-    /** Quadro W: one rigo per holding period, valued at market value. */
     private static List<DeclarationItem> quadroW(
-            IvafeResult ivafe, Mappings.Layout layout, String brokerCountry, List<Msg> warnings) {
-        String state = Mappings.stateCode(brokerCountry).orElse("");
-        if (state.isEmpty()) {
-            warnings.add(Msg.of("declaration.unknown_state", brokerCountry));
-        }
+            IvafeResult ivafe, Mappings.Layout layout, Map<String, Set<String>> countriesByTicker, List<Msg> warnings) {
         List<DeclarationItem> items = new ArrayList<>();
         int rigo = 1;
         for (IvafeRow row : ivafe.rows()) {
@@ -159,6 +158,7 @@ public final class DeclarationBuilder {
                 warnings.add(Msg.of("declaration.missing_year_end_price", row.ticker()));
                 continue;
             }
+            String state = stateCode(row.ticker(), countriesByTicker, warnings);
             items.add(new DeclarationItem(
                     "w" + rigo,
                     Msg.of("declaration.w.holding", row.ticker(), row.from(), row.to()),
@@ -176,6 +176,34 @@ public final class DeclarationBuilder {
             rigo++;
         }
         return items;
+    }
+
+    /**
+     * State code of the country where a ticker is held, from the broker it was
+     * bought at. Empty, with a warning, when it cannot be told: unknown country,
+     * or the same ticker held at brokers of different countries.
+     */
+    private static String stateCode(String ticker, Map<String, Set<String>> countriesByTicker, List<Msg> warnings) {
+        Set<String> countries = countriesByTicker.getOrDefault(ticker, Set.of());
+        if (countries.size() != 1) {
+            addOnce(warnings, Msg.of("declaration.country_not_unique", ticker, String.join(", ", countries)));
+            return "";
+        }
+        String country = countries.iterator().next();
+        String state = Mappings.stateCode(country).orElse("");
+        if (state.isEmpty()) {
+            addOnce(warnings, Msg.of("declaration.unknown_state", country));
+        }
+        return state;
+    }
+
+    /**
+     * Adds a warning unless it is already there: a ticker can have several rows.
+     */
+    private static void addOnce(List<Msg> warnings, Msg msg) {
+        if (!warnings.contains(msg)) {
+            warnings.add(msg);
+        }
     }
 
     private static String incomeCode(AssetClass assetClass, EventType type) {
