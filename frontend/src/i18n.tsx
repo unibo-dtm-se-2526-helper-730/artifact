@@ -14,7 +14,7 @@ const it = {
   'nav.declaration': 'Dichiarazione',
   'nav.ivafe': 'IVAFE',
   'nav.portfolio': 'Portafoglio',
-  'year.label': 'Anno d’imposta',
+  'year.label': "Anno d'imposta",
   'year.none': 'Nessun anno',
   'year.needed': 'Importa un file con operazioni fiscali per scegliere un anno.',
   'common.save': 'Salva',
@@ -44,7 +44,7 @@ const it = {
   'import.danger': 'Elimina tutte le operazioni',
   'import.dangerText': 'Cancella tutte le operazioni importate e lo storico degli import.',
   'import.confirmTitle': 'Eliminare tutte le operazioni?',
-  'import.confirmText': 'L’operazione non si può annullare: dovrai reimportare i file.',
+  'import.confirmText': "L'operazione non si può annullare: dovrai reimportare i file.",
   'import.alsoInstruments': 'Elimina anche gli strumenti rimasti senza operazioni',
   'import.delete': 'Elimina',
   'import.deleted':
@@ -99,7 +99,7 @@ const it = {
   'summary.tax': 'Imposta ({rate}%)',
   'summary.zainetto': 'Zainetto fiscale',
   'summary.zainettoTotal': 'Disponibile a fine anno',
-  'summary.used': 'Usato quest’anno',
+  'summary.used': "Usato quest'anno",
   'summary.expires': 'del {year}: {amount}, utilizzabile fino al 31/12/{last}',
   'summary.zainettoEmpty': 'Lo Zainetto è vuoto.',
   'summary.unclassified': 'Per calcolare il {year} classifica prima questi strumenti: {tickers}.',
@@ -130,15 +130,15 @@ const it = {
   'carried.add': 'Aggiungi anno',
   'carried.remove': 'Rimuovi',
 
-  'declaration.title': 'Modello {model} – anno d’imposta {year}',
+  'declaration.title': "Modello {model} - anno d'imposta {year}",
   'declaration.rigo': 'Rigo',
   'declaration.what': 'Voce',
   'declaration.amount': 'Importo',
   'declaration.detail': 'Altre colonne',
   'declaration.secondary': 'Importo collegato',
   'declaration.disclaimer':
-    'Prospetto di aiuto alla compilazione: verifica sempre i righi sulle istruzioni ufficiali dell’anno.',
-  'declaration.empty': 'Nessun quadro da compilare per quest’anno.',
+    "Prospetto di aiuto alla compilazione: verifica sempre i righi sulle istruzioni ufficiali dell'anno.",
+  'declaration.empty': "Nessun quadro da compilare per quest'anno.",
 
   'ivafe.title': 'IVAFE {year}',
   'ivafe.total': 'IVAFE totale',
@@ -152,7 +152,7 @@ const it = {
   'ivafe.amount': 'IVAFE',
   'ivafe.notes': 'Note',
   'ivafe.prices': 'Prezzi al 31/12',
-  'ivafe.pricesIntro': 'Prezzo di chiusura dell’ultimo giorno di borsa dell’anno.',
+  'ivafe.pricesIntro': "Prezzo di chiusura dell'ultimo giorno di borsa dell'anno.",
   'ivafe.savePrices': 'Salva i prezzi e ricalcola',
 
   'portfolio.title': 'Portafoglio attuale',
@@ -295,7 +295,7 @@ const en: Record<Key, string> = {
   'carried.add': 'Add year',
   'carried.remove': 'Remove',
 
-  'declaration.title': 'Modello {model} – tax year {year}',
+  'declaration.title': 'Modello {model} - tax year {year}',
   'declaration.rigo': 'Rigo',
   'declaration.what': 'Item',
   'declaration.amount': 'Amount',

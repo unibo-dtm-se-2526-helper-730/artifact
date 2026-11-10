@@ -3,12 +3,12 @@ name: CI/CD
 on:
   push:
     branches-ignore:
-      - 'dependabot/**'
-      - 'renovate/**'
+      - "dependabot/**"
+      - "renovate/**"
     paths-ignore:
-      - '.gitignore'
-      - 'LICENSE'
-      - 'README.md'
+      - ".gitignore"
+      - "LICENSE"
+      - "README.md"
   pull_request:
   workflow_dispatch:
 
@@ -33,13 +33,13 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '25'
+          java-version: "25"
           cache: maven
 
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
-          node-version: '26'
+          node-version: "26"
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -77,7 +77,7 @@ jobs:
 
       # Unit tests, integration tests on PostgreSQL (failsafe + Testcontainers)
       # and the JaCoCo report in target/site/jacoco
-      - name: Test with Coverage
+      - name: Test with Coverage (backend)
         working-directory: backend
         run: ./mvnw -B -ntp verify
 
@@ -85,6 +85,18 @@ jobs:
         with:
           name: coverage-report-${{ github.sha }}
           path: backend/target/site/jacoco
+          if-no-files-found: ignore
+          overwrite: true
+
+      # Vitest on jsdom, v8 coverage report in frontend/coverage
+      - name: Test with Coverage (frontend)
+        working-directory: frontend
+        run: npm run coverage
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report-frontend-${{ github.sha }}
+          path: frontend/coverage
           if-no-files-found: ignore
           overwrite: true
 
@@ -109,8 +121,8 @@ jobs:
           - macos-latest
         # The code targets Java 25 (java.version in the pom): older JDKs cannot compile it
         java-version:
-          - '25'
-          - '26'
+          - "25"
+          - "26"
     runs-on: ${{ matrix.os }}
     name: Test on Java ${{ matrix.java-version }}, on ${{ matrix.os }}
     timeout-minutes: 45

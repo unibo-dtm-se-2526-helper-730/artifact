@@ -65,7 +65,7 @@ export function IvafePage({ year }: { year: number }) {
                     <td>{row.ticker}</td>
                     <td className="num">{quantity(row.quantity, lang)}</td>
                     <td className="nowrap">
-                      {date(row.from, lang)} – {date(row.to, lang)}
+                      {date(row.from, lang)} - {date(row.to, lang)}
                     </td>
                     <td className="num">{row.holding_days}</td>
                     <td className="num">{money(row.initial_value, lang)}</td>

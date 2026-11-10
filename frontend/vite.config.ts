@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
 // In development the browser calls /api on the Vite server, which forwards it to
@@ -10,6 +10,19 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': 'http://localhost:8080',
+    },
+  },
+  // Tests live in test/, separated from the sources: run with `npm test`
+  test: {
+    environment: 'jsdom',
+    include: ['test/**/*.test.{ts,tsx}'],
+    setupFiles: ['test/setup.ts'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/main.tsx'],
+      reporter: ['text', 'html'],
+      reportsDirectory: 'coverage',
     },
   },
 });
