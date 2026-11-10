@@ -9,6 +9,7 @@ import it.helper730.engine.zainetto.CompensationStrategy;
 import it.helper730.ingestion.BrokerParserRegistry;
 import it.helper730.ingestion.CsvReader;
 import it.helper730.ingestion.revolut.RevolutParser;
+import it.helper730.ingestion.traderepublic.TradeRepublicParser;
 import it.helper730.ingestion.validation.FutureDateValidator;
 import it.helper730.ingestion.validation.ImpliedFeeValidator;
 import it.helper730.ingestion.validation.ValidationChain;
@@ -34,8 +35,8 @@ public class CoreConfig {
 
     @Bean
     BrokerParserRegistry brokerParserRegistry(ValidationChain validation) {
-        return new BrokerParserRegistry(new CsvReader(), List.of(new RevolutParser(validation))); // FIXME -- add new
-        // parsers here
+        return new BrokerParserRegistry(
+                new CsvReader(), List.of(new RevolutParser(validation), new TradeRepublicParser(validation)));
     }
 
     @Bean
