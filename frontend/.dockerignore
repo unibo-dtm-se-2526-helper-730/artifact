@@ -1,3 +1,4 @@
 # Rebuilt inside the image: never copied from the host
 node_modules/
 dist/
+coverage/
