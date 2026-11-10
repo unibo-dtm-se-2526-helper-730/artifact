@@ -8,6 +8,7 @@ import it.helper730.domain.portfolio.Portfolio;
 import it.helper730.engine.PortfolioCalculator;
 import it.helper730.engine.TaxCalculator;
 import it.helper730.engine.ivafe.IvafeCalculator;
+import it.helper730.ingestion.BrokerParserRegistry;
 import it.helper730.persistence.EntityMapper;
 import it.helper730.persistence.repository.CarriedLossRepository;
 import it.helper730.persistence.repository.InstrumentRepository;
@@ -19,9 +20,10 @@ import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +44,7 @@ public class TaxService {
     private final IvafeCalculator ivafeCalculator;
     private final PortfolioCalculator portfolioCalculator;
     private final DeclarationBuilder declarationBuilder;
-    private final String brokerCountry;
+    private final BrokerParserRegistry parsers;
 
     public TaxService(
             TransactionRepository transactions,
@@ -53,7 +55,7 @@ public class TaxService {
             IvafeCalculator ivafeCalculator,
             PortfolioCalculator portfolioCalculator,
             DeclarationBuilder declarationBuilder,
-            @Value("${helper730.broker-country}") String brokerCountry) {
+            BrokerParserRegistry parsers) {
         this.transactions = transactions;
         this.instruments = instruments;
         this.prices = prices;
@@ -62,7 +64,7 @@ public class TaxService {
         this.ivafeCalculator = ivafeCalculator;
         this.portfolioCalculator = portfolioCalculator;
         this.declarationBuilder = declarationBuilder;
-        this.brokerCountry = brokerCountry;
+        this.parsers = parsers;
     }
 
     /**
@@ -99,12 +101,25 @@ public class TaxService {
      * year.
      */
     public Declaration declaration(int year) {
-        return declarationBuilder.build(tax(year), ivafe(year), instrumentMap(), brokerCountry);
+        return declarationBuilder.build(tax(year), ivafe(year), instrumentMap(), countriesByTicker());
     }
 
     /** Current holdings at cost; unclassified instruments are allowed here. */
     public Portfolio portfolio() {
         return portfolioCalculator.calculate(allTransactions(), instrumentMap());
+    }
+
+    /**
+     * Countries of the brokers each ticker was imported from. A broker that is no
+     * longer supported keeps its name, and the declaration warns about it.
+     */
+    private Map<String, Set<String>> countriesByTicker() {
+        return transactions.findTickerBrokers().stream()
+                .collect(Collectors.groupingBy(
+                        TransactionRepository.TickerBroker::getTicker,
+                        Collectors.mapping(
+                                tb -> parsers.countryOf(tb.getBroker()).orElse(tb.getBroker()),
+                                Collectors.toCollection(TreeSet::new))));
     }
 
     private List<Transaction> allTransactions() {

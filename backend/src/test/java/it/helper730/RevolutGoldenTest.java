@@ -27,8 +27,14 @@ import java.util.Map;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.junit.jupiter.api.Test;
 
-/** revolut_golden.csv, from the file to the results expected in the README. */
-class GoldenCsvTest {
+/**
+ * RevolutGoldenTest.
+ *
+ * Acceptance test of the Revolut import: revolut_golden.csv is parsed and run
+ * through the tax and IVAFE calculators, and the results must match the ones
+ * computed by hand.
+ */
+class RevolutGoldenTest {
 
     private static final Clock NOW = Clock.fixed(Instant.parse("2026-11-03T00:00:00Z"), ZoneOffset.UTC);
 
@@ -39,7 +45,7 @@ class GoldenCsvTest {
                 new CsvReader(),
                 List.of(new RevolutParser(
                         new ValidationChain(List.of(new FutureDateValidator(NOW), new ImpliedFeeValidator())))));
-        try (InputStream input = GoldenCsvTest.class.getResourceAsStream("/golden/revolut_golden.csv")) {
+        try (InputStream input = RevolutGoldenTest.class.getResourceAsStream("/golden/revolut_golden.csv")) {
             assertThat(input).as("golden csv on the test classpath").isNotNull();
             return registry.parse(input);
         }
