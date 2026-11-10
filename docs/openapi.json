@@ -1,0 +1,1145 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "description" : "Substitute tax, Zainetto and IVAFE for Italian investors using Revolut under the declarative regime. Amounts are strings with a decimal point; the language of messages is chosen with ?lang=it|en or Accept-Language. Errors follow RFC 9457 (application/problem+json) with a stable \"code\".",
+    "license" : {
+      "name" : "See LICENSE in the repository"
+    },
+    "title" : "helper-730 API",
+    "version" : "v1"
+  },
+  "servers" : [ {
+    "url" : "http://localhost",
+    "description" : "Generated server url"
+  } ],
+  "tags" : [ {
+    "description" : "Stored operations, by tax year",
+    "name" : "Transactions"
+  }, {
+    "description" : "Losses from years before the first import",
+    "name" : "Carried losses"
+  }, {
+    "description" : "Upload of broker CSV exports and import history",
+    "name" : "Imports"
+  }, {
+    "description" : "Current holdings at cost",
+    "name" : "Portfolio"
+  }, {
+    "description" : "Prices at 31/12, used for IVAFE",
+    "name" : "Prices"
+  }, {
+    "description" : "Application status and version",
+    "name" : "Health"
+  }, {
+    "description" : "Substitute tax, Zainetto, IVAFE and Modello 730 summary",
+    "name" : "Tax"
+  }, {
+    "description" : "Classification of the instruments found in the imports",
+    "name" : "Instruments"
+  } ],
+  "paths" : {
+    "/api/v1/carried-losses" : {
+      "get" : {
+        "operationId" : "list",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CarriedLossDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Carried losses" ]
+      },
+      "put" : {
+        "operationId" : "replace_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/components/schemas/CarriedLossRequest"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CarriedLossDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Carried losses" ]
+      }
+    },
+    "/api/v1/health" : {
+      "get" : {
+        "operationId" : "health",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Health" ]
+      }
+    },
+    "/api/v1/imports" : {
+      "get" : {
+        "operationId" : "history",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ImportBatchDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Imports" ]
+      },
+      "post" : {
+        "operationId" : "upload",
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "file" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "file" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ImportResponse"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "tags" : [ "Imports" ]
+      }
+    },
+    "/api/v1/instruments" : {
+      "delete" : {
+        "operationId" : "deleteUnused",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "integer",
+                    "format" : "int32"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Instruments" ]
+      },
+      "get" : {
+        "operationId" : "list_2",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/InstrumentDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Instruments" ]
+      }
+    },
+    "/api/v1/instruments/{ticker}" : {
+      "put" : {
+        "operationId" : "save",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "ticker",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/InstrumentRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InstrumentDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Instruments" ]
+      }
+    },
+    "/api/v1/portfolio" : {
+      "get" : {
+        "operationId" : "portfolio",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PortfolioDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Portfolio" ]
+      }
+    },
+    "/api/v1/prices/{year}" : {
+      "get" : {
+        "operationId" : "get",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "year",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PricesDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Prices" ]
+      },
+      "put" : {
+        "operationId" : "replace",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "year",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PricesRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PricesDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Prices" ]
+      }
+    },
+    "/api/v1/tax/years" : {
+      "get" : {
+        "operationId" : "years",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/YearSummaryDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Tax" ]
+      }
+    },
+    "/api/v1/tax/{year}" : {
+      "get" : {
+        "operationId" : "tax",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "year",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaxYearDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Tax" ]
+      }
+    },
+    "/api/v1/tax/{year}/declaration" : {
+      "get" : {
+        "operationId" : "declaration",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "year",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DeclarationDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Tax" ]
+      }
+    },
+    "/api/v1/tax/{year}/ivafe" : {
+      "get" : {
+        "operationId" : "ivafe",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "year",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/IvafeDto"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Tax" ]
+      }
+    },
+    "/api/v1/transactions" : {
+      "delete" : {
+        "operationId" : "deleteAll",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "instruments",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DeleteResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Transactions" ]
+      },
+      "get" : {
+        "operationId" : "list_1",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "year",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TransactionDto"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Transactions" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "AssetClassWeightDto" : {
+        "properties" : {
+          "asset_class" : {
+            "type" : "string",
+            "enum" : [ "STOCK", "BOND", "GOVERNMENT_BOND_WL", "GOVERNMENT_BOND_NON_WL", "UCITS_ETF", "NON_UCITS_ETF", "ETC_ETN" ]
+          },
+          "cost" : {
+            "type" : "string"
+          },
+          "weight" : {
+            "type" : "string"
+          }
+        }
+      },
+      "CarriedLossDto" : {
+        "properties" : {
+          "amount" : {
+            "type" : "string"
+          },
+          "loss_year" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "CarriedLossRequest" : {
+        "properties" : {
+          "amount" : {
+            "type" : "number"
+          },
+          "loss_year" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "CompensationDto" : {
+        "properties" : {
+          "loss_year" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "used" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ConsumptionDto" : {
+        "properties" : {
+          "acquired_at" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "buy_transaction_id" : {
+            "type" : "string"
+          },
+          "cash_cost" : {
+            "type" : "string"
+          },
+          "cost" : {
+            "type" : "string"
+          },
+          "gain" : {
+            "type" : "string"
+          },
+          "proceeds" : {
+            "type" : "string"
+          },
+          "quantity" : {
+            "type" : "string"
+          }
+        }
+      },
+      "DeclarationDto" : {
+        "properties" : {
+          "model" : {
+            "type" : "string"
+          },
+          "sections" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DeclarationSectionDto"
+            }
+          },
+          "warnings" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/MsgDto"
+            }
+          },
+          "year" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "DeclarationItemDto" : {
+        "properties" : {
+          "amount" : {
+            "type" : "string"
+          },
+          "description" : {
+            "$ref" : "#/components/schemas/MsgDto"
+          },
+          "detail" : {
+            "$ref" : "#/components/schemas/MsgDto"
+          },
+          "key" : {
+            "type" : "string"
+          },
+          "rigo" : {
+            "type" : "string"
+          },
+          "secondary" : {
+            "type" : "string"
+          }
+        }
+      },
+      "DeclarationSectionDto" : {
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DeclarationItemDto"
+            }
+          },
+          "quadro" : {
+            "type" : "string"
+          },
+          "title" : {
+            "$ref" : "#/components/schemas/MsgDto"
+          }
+        }
+      },
+      "DeleteResponse" : {
+        "properties" : {
+          "imports" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "instruments" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "transactions" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "EventDto" : {
+        "properties" : {
+          "amount" : {
+            "type" : "string"
+          },
+          "category" : {
+            "type" : "string",
+            "enum" : [ "MISCELLANEOUS", "CAPITAL", "EXCLUDED" ]
+          },
+          "consumptions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ConsumptionDto"
+            }
+          },
+          "executed_at" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "foreign_tax" : {
+            "type" : "string"
+          },
+          "taxable_amount" : {
+            "type" : "string"
+          },
+          "ticker" : {
+            "type" : "string"
+          },
+          "transaction_id" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "CAPITAL_GAIN", "CAPITAL_LOSS", "DIVIDEND", "COUPON" ]
+          },
+          "weight" : {
+            "type" : "string"
+          }
+        }
+      },
+      "HealthResponse" : {
+        "properties" : {
+          "status" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ImportBatchDto" : {
+        "properties" : {
+          "broker" : {
+            "type" : "string"
+          },
+          "duplicates" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "errors" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "filename" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "imported" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "imported_at" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "ImportResponse" : {
+        "properties" : {
+          "batch_id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "duplicates" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "errors" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "imported" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "issues" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RowIssueDto"
+            }
+          }
+        }
+      },
+      "InstrumentDto" : {
+        "properties" : {
+          "asset_class" : {
+            "type" : "string",
+            "enum" : [ "STOCK", "BOND", "GOVERNMENT_BOND_WL", "GOVERNMENT_BOND_NON_WL", "UCITS_ETF", "NON_UCITS_ETF", "ETC_ETN" ]
+          },
+          "classified" : {
+            "type" : "boolean"
+          },
+          "foreign_withholding_rate" : {
+            "type" : "string"
+          },
+          "government_bond_share" : {
+            "type" : "string"
+          },
+          "isin" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "ticker" : {
+            "type" : "string"
+          }
+        }
+      },
+      "InstrumentRequest" : {
+        "properties" : {
+          "asset_class" : {
+            "type" : "string",
+            "enum" : [ "STOCK", "BOND", "GOVERNMENT_BOND_WL", "GOVERNMENT_BOND_NON_WL", "UCITS_ETF", "NON_UCITS_ETF", "ETC_ETN" ]
+          },
+          "foreign_withholding_rate" : {
+            "type" : "number"
+          },
+          "government_bond_share" : {
+            "type" : "number"
+          },
+          "isin" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        }
+      },
+      "IvafeDto" : {
+        "properties" : {
+          "below_threshold" : {
+            "type" : "boolean"
+          },
+          "complete" : {
+            "type" : "boolean"
+          },
+          "missing_prices" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "payment_threshold" : {
+            "type" : "string"
+          },
+          "rate" : {
+            "type" : "string"
+          },
+          "rows" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IvafeRowDto"
+            }
+          },
+          "total" : {
+            "type" : "string"
+          },
+          "year" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "IvafeRowDto" : {
+        "properties" : {
+          "final_value" : {
+            "type" : "string"
+          },
+          "from" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "holding_days" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "initial_value" : {
+            "type" : "string"
+          },
+          "ivafe" : {
+            "type" : "string"
+          },
+          "notes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/MsgDto"
+            }
+          },
+          "quantity" : {
+            "type" : "string"
+          },
+          "sold" : {
+            "type" : "boolean"
+          },
+          "ticker" : {
+            "type" : "string"
+          },
+          "to" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "year_end_price" : {
+            "type" : "string"
+          }
+        }
+      },
+      "LossDto" : {
+        "properties" : {
+          "amount" : {
+            "type" : "string"
+          },
+          "last_usable_year" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "remaining" : {
+            "type" : "string"
+          },
+          "year" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "MsgDto" : {
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "params" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "text" : {
+            "type" : "string"
+          }
+        }
+      },
+      "PortfolioDto" : {
+        "properties" : {
+          "by_asset_class" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AssetClassWeightDto"
+            }
+          },
+          "positions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PositionDto"
+            }
+          },
+          "total_cost" : {
+            "type" : "string"
+          }
+        }
+      },
+      "PositionDto" : {
+        "properties" : {
+          "asset_class" : {
+            "type" : "string",
+            "enum" : [ "STOCK", "BOND", "GOVERNMENT_BOND_WL", "GOVERNMENT_BOND_NON_WL", "UCITS_ETF", "NON_UCITS_ETF", "ETC_ETN" ]
+          },
+          "average_cost" : {
+            "type" : "string"
+          },
+          "cost" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "quantity" : {
+            "type" : "string"
+          },
+          "tax_cost" : {
+            "type" : "string"
+          },
+          "ticker" : {
+            "type" : "string"
+          },
+          "weight" : {
+            "type" : "string"
+          }
+        }
+      },
+      "PricesDto" : {
+        "properties" : {
+          "prices" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "year" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "PricesRequest" : {
+        "properties" : {
+          "prices" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "number"
+            }
+          }
+        }
+      },
+      "RowIssueDto" : {
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "file_row" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "params" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "severity" : {
+            "type" : "string"
+          }
+        }
+      },
+      "TaxYearDto" : {
+        "properties" : {
+          "below_threshold" : {
+            "type" : "boolean"
+          },
+          "capital_tax" : {
+            "type" : "string"
+          },
+          "capital_taxable" : {
+            "type" : "string"
+          },
+          "economic_result" : {
+            "type" : "string"
+          },
+          "events" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EventDto"
+            }
+          },
+          "miscellaneous_tax" : {
+            "type" : "string"
+          },
+          "miscellaneous_taxable" : {
+            "type" : "string"
+          },
+          "payable_tax" : {
+            "type" : "string"
+          },
+          "payment_threshold" : {
+            "type" : "string"
+          },
+          "rate" : {
+            "type" : "string"
+          },
+          "total_tax" : {
+            "type" : "string"
+          },
+          "year" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "zainetto" : {
+            "$ref" : "#/components/schemas/ZainettoDto"
+          }
+        }
+      },
+      "TransactionDto" : {
+        "properties" : {
+          "currency" : {
+            "type" : "string"
+          },
+          "executed_at" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "file_row" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "price_per_share" : {
+            "type" : "string"
+          },
+          "quantity" : {
+            "type" : "string"
+          },
+          "tax_year" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "ticker" : {
+            "type" : "string"
+          },
+          "total_amount" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "BUY", "SELL", "DIVIDEND", "COUPON", "CASH_TOP_UP", "CASH_WITHDRAWAL", "CUSTODY_FEE" ]
+          }
+        }
+      },
+      "YearSummaryDto" : {
+        "properties" : {
+          "error_code" : {
+            "type" : "string"
+          },
+          "event_count" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "total_tax" : {
+            "type" : "string"
+          },
+          "year" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "zainetto_total" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ZainettoDto" : {
+        "properties" : {
+          "closing" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LossDto"
+            }
+          },
+          "closing_total" : {
+            "type" : "string"
+          },
+          "compensations" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CompensationDto"
+            }
+          },
+          "expired" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LossDto"
+            }
+          },
+          "gains" : {
+            "type" : "string"
+          },
+          "losses" : {
+            "type" : "string"
+          },
+          "opening" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LossDto"
+            }
+          },
+          "opening_total" : {
+            "type" : "string"
+          },
+          "realized_loss" : {
+            "$ref" : "#/components/schemas/LossDto"
+          },
+          "used_total" : {
+            "type" : "string"
+          }
+        }
+      }
+    }
+  }
+}
