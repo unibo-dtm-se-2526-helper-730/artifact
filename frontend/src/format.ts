@@ -7,7 +7,7 @@ const locale = (lang: Lang) => (lang === 'it' ? 'it-IT' : 'en-GB');
 const ZONE = 'Europe/Rome';
 
 export function money(value: string | null | undefined, lang: Lang): string {
-  if (value == null) return '–';
+  if (value == null) return '-';
   return new Intl.NumberFormat(locale(lang), { style: 'currency', currency: 'EUR' }).format(
     Number(value),
   );
@@ -15,7 +15,7 @@ export function money(value: string | null | undefined, lang: Lang): string {
 
 /** Quantities keep every decimal they have (fractional shares have up to 8). */
 export function quantity(value: string | null | undefined, lang: Lang): string {
-  if (value == null) return '–';
+  if (value == null) return '-';
   return new Intl.NumberFormat(locale(lang), { maximumFractionDigits: 10 }).format(Number(value));
 }
 

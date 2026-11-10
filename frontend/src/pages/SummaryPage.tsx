@@ -183,7 +183,7 @@ function Events({ events, rate }: { events: TaxEvent[]; rate: string }) {
                   {/* a loss is not taxed: it goes into the Zainetto, so no rate */}
                   <td className="num">
                     {e.type === 'CAPITAL_LOSS'
-                      ? '–'
+                      ? '-'
                       : percent(Number(rate) * Number(e.weight), lang)}
                   </td>
                   <td className="num">{money(e.taxable_amount, lang)}</td>
