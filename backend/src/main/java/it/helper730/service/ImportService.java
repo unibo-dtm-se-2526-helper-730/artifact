@@ -57,14 +57,15 @@ public class ImportService {
             }
         }
 
-        // 3. New tickers become unclassified instruments (required by the foreign key).
+        // 3. New tickers become unclassified instruments (required by the foreign key),
+        // with ISIN and name when the broker file has them.
         Set<String> tickers = fresh.values().stream()
                 .map(Transaction::ticker)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(TreeSet::new));
         instruments.findAllById(tickers).forEach(known -> tickers.remove(known.ticker()));
         instruments.saveAll(tickers.stream()
-                .map(Instrument::unclassified)
+                .map(ticker -> parsed.instruments().getOrDefault(ticker, Instrument.unclassified(ticker)))
                 .map(EntityMapper::toEntity)
                 .toList());
 

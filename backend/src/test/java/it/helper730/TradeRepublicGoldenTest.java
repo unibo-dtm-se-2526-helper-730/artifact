@@ -1,6 +1,7 @@
 package it.helper730;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 import it.helper730.domain.AssetClass;
 import it.helper730.domain.Instrument;
@@ -40,14 +41,14 @@ class TradeRepublicGoldenTest {
 
     private static final Clock NOW = Clock.fixed(Instant.parse("2026-11-03T00:00:00Z"), ZoneOffset.UTC);
 
-    private static final String VWCE = "IE00BK5BQT80";
-    private static final String SXR8 = "IE00B5BMR087";
-    private static final String AAPL = "US0378331005";
+    private static final String VWCE = "VWCE";
+    private static final String SXR8 = "SXR8";
+    private static final String AAPL = "AAPL";
 
     private static final Map<String, Instrument> INSTRUMENTS = Map.of(
-            VWCE, new Instrument(VWCE, VWCE, null, AssetClass.UCITS_ETF, null, null),
-            SXR8, new Instrument(SXR8, SXR8, null, AssetClass.UCITS_ETF, null, null),
-            AAPL, new Instrument(AAPL, AAPL, null, AssetClass.STOCK, null, null));
+            VWCE, new Instrument(VWCE, "IE00BK5BQT80", null, AssetClass.UCITS_ETF, null, null),
+            SXR8, new Instrument(SXR8, "IE00B5BMR087", null, AssetClass.UCITS_ETF, null, null),
+            AAPL, new Instrument(AAPL, "US0378331005", null, AssetClass.STOCK, null, null));
 
     private final RuleSetFactory rules = new RuleSetFactory();
 
@@ -73,6 +74,13 @@ class TradeRepublicGoldenTest {
         // the 1 EUR fee is 0.67% of the 150 EUR trades, above the threshold of 0.5%
         assertThat(result.warnings()).extracting(RowIssue::fileRow).containsExactly(4, 12, 13, 15);
         assertThat(result.transactions()).filteredOn(t -> t.taxYear() == 2026).hasSize(1);
+        // the file gives ISIN and name of every security
+        assertThat(result.instruments().values())
+                .extracting(Instrument::ticker, Instrument::isin, Instrument::name)
+                .containsExactlyInAnyOrder(
+                        tuple(VWCE, "IE00BK5BQT80", "Vanguard FTSE All-World USD (Acc)"),
+                        tuple(SXR8, "IE00B5BMR087", "Core S&P 500 USD (Acc)"),
+                        tuple(AAPL, "US0378331005", "Apple"));
     }
 
     @Test
