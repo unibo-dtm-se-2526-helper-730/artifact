@@ -3,9 +3,11 @@ package it.helper730;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -195,10 +197,56 @@ class ApiIntegrationIT {
         assertThat(count("instruments")).isZero();
     }
 
+    @Test
+    void tradeRepublicCsvGivesTheExpectedTaxAndGermanyInQuadroW() throws Exception {
+        String vwce = "IE00BK5BQT80";
+        String sxr8 = "IE00B5BMR087";
+        String aapl = "US0378331005";
+
+        upload(tradeRepublicGolden(), "trade_republic_golden.csv")
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.imported").value(16))
+                .andExpect(jsonPath("$.issues", hasSize(4)))
+                .andExpect(jsonPath("$.issues[*].code", everyItem(is("warning.implied_fee"))));
+
+        mvc.perform(get(API + "/imports")).andExpect(jsonPath("$[0].broker").value("TRADE_REPUBLIC"));
+
+        // Trade Republic identifies instruments by ISIN
+        classify(vwce, "UCITS_ETF");
+        classify(sxr8, "UCITS_ETF");
+        classify(aapl, "STOCK");
+        mvc.perform(put(API + "/prices/2025")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"prices\":{\"%s\":\"130\",\"%s\":\"520\",\"%s\":\"210\"}}"
+                                .formatted(vwce, sxr8, aapl)))
+                .andExpect(status().isOk());
+
+        mvc.perform(get(API + "/tax/2025"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.capital_taxable").value("200"))
+                .andExpect(jsonPath("$.total_tax").value("52"))
+                .andExpect(jsonPath("$.zainetto.closing_total").value("52.17"));
+
+        mvc.perform(get(API + "/tax/2025/ivafe"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.total").value("1.82"));
+
+        // the securities are held in Germany: state code 094 on every row of quadro W
+        String states = "$.sections[?(@.quadro == 'W')].items[*].detail.params[2]";
+        mvc.perform(get(API + "/tax/2025/declaration"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath(states, hasItem("094")))
+                .andExpect(jsonPath(states, everyItem(is("094"))));
+    }
+
     // --- helpers ------------------------------------------------------------
 
     private static byte[] golden() throws IOException {
         return new ClassPathResource("golden/revolut_golden.csv").getContentAsByteArray();
+    }
+
+    private static byte[] tradeRepublicGolden() throws IOException {
+        return new ClassPathResource("golden/trade_republic_golden.csv").getContentAsByteArray();
     }
 
     private ResultActions upload(byte[] csv) throws Exception {
