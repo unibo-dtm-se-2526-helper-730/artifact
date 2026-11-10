@@ -54,6 +54,12 @@ public final class RevolutParser implements BrokerParser {
         return "REVOLUT";
     }
 
+    /** Revolut Securities Europe UAB, Lithuania. */
+    @Override
+    public String country() {
+        return "LT";
+    }
+
     @Override
     public boolean supports(CsvRow header) {
         return header.fields().stream().map(String::trim).toList().equals(HEADER);

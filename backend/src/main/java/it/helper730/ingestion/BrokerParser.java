@@ -12,6 +12,12 @@ public interface BrokerParser {
     /** Name of the broker, stored with each import. */
     String broker();
 
+    /**
+     * Country where the broker holds the securities, written in the quadro W of the
+     * declaration.
+     */
+    String country();
+
     /** Whether this parser recognizes the header row of a file. */
     boolean supports(CsvRow header);
 

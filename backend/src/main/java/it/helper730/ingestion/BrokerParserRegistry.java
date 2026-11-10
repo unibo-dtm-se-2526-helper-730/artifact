@@ -6,6 +6,7 @@ import it.helper730.ingestion.exceptions.UnsupportedBrokerException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * BrokerParserRegistry.
@@ -25,6 +26,14 @@ public final class BrokerParserRegistry {
     /** Parse CSV text. */
     public ParseResult parse(String content) {
         return parse(csvReader.read(content));
+    }
+
+    /** Country of the broker with the given name, as stored with each import. */
+    public Optional<String> countryOf(String broker) {
+        return parsers.stream()
+                .filter(p -> p.broker().equals(broker))
+                .map(BrokerParser::country)
+                .findFirst();
     }
 
     /** Parses a UTF-8 file. */
