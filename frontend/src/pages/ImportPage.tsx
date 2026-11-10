@@ -21,6 +21,11 @@ export function ImportPage({ onDataChanged }: { onDataChanged: () => void }) {
   const [confirming, setConfirming] = useState(false);
   const [alsoInstruments, setAlsoInstruments] = useState(false);
   const [deleted, setDeleted] = useState<DeleteResponse | null>(null);
+  /** Display names of the brokers the backend can import, by the code stored with each import. */
+  const BROKERS: Record<string, string> = {
+    REVOLUT: 'Revolut',
+    TRADE_REPUBLIC: 'Trade Republic',
+  };
 
   async function upload(file: File) {
     setUploading(file.name);
@@ -90,6 +95,9 @@ export function ImportPage({ onDataChanged }: { onDataChanged: () => void }) {
           }}
         />
       </div>
+      <p className="muted">
+        {t('import.supported', { brokers: Object.values(BROKERS).join(', ') })}
+      </p>
 
       {uploading && <Notice tone="info">{t('import.uploading', { name: uploading })}</Notice>}
       {error != null && <ErrorNotice error={error} />}
@@ -143,6 +151,8 @@ export function ImportPage({ onDataChanged }: { onDataChanged: () => void }) {
               <th className="num">{t('import.imported')}</th>
               <th className="num">{t('import.duplicates')}</th>
               <th className="num">{t('import.errors')}</th>
+              <th>{t('import.file')}</th>
+              <th>{t('import.broker')}</th>
             </tr>
           </thead>
           <tbody>
@@ -150,6 +160,7 @@ export function ImportPage({ onDataChanged }: { onDataChanged: () => void }) {
               <tr key={b.id}>
                 <td>{dateTime(b.imported_at, lang)}</td>
                 <td>{b.filename}</td>
+                <td>{BROKERS[b.broker] ?? b.broker}</td>
                 <td className="num">{b.imported}</td>
                 <td className="num">{b.duplicates}</td>
                 <td className="num">{b.errors}</td>

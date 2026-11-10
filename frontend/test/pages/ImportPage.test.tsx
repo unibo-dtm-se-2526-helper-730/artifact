@@ -37,11 +37,26 @@ describe('ImportPage', () => {
     vi.mocked(api.imports).mockResolvedValue([batch]);
   });
 
-  it('shows the import history', async () => {
+  it('shows the import history with the broker of each file', async () => {
+    vi.mocked(api.imports).mockResolvedValue([
+      batch,
+      { ...batch, id: 2, filename: 'trade_republic_2025.csv', broker: 'TRADE_REPUBLIC' },
+    ]);
     renderPage();
 
     const row = (await screen.findByText('revolut_2025.csv')).closest('tr')!;
     expect(within(row).getByText('11')).toBeInTheDocument();
+    expect(within(row).getByText('Revolut')).toBeInTheDocument();
+    const other = screen.getByText('trade_republic_2025.csv').closest('tr')!;
+    expect(within(other).getByText('Trade Republic')).toBeInTheDocument();
+  });
+
+  it('lists the supported brokers', async () => {
+    renderPage();
+
+    expect(
+      await screen.findByText('Broker supportati: Revolut, Trade Republic.'),
+    ).toBeInTheDocument();
   });
 
   it('says when there are no imports yet', async () => {
