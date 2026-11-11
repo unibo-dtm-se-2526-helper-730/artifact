@@ -173,4 +173,19 @@ class TaxCalculatorTest {
         assertThatThrownBy(() -> calculator.calculate(2014, List.of(), Map.of(), Map.of()))
                 .isInstanceOf(UnsupportedTaxYearException.class);
     }
+
+    @Test
+    void ucitsEtfLossIsReducedForItsGovernmentBondShare() {
+        Map<String, Instrument> instruments =
+                Map.of("AGGH", new Instrument("AGGH", null, null, AssetClass.UCITS_ETF, new BigDecimal("0.40"), null));
+        List<Transaction> operations = List.of(
+                trade(OperationType.BUY, "AGGH", "2026-02-02", "10", "100", "1001"),
+                trade(OperationType.SELL, "AGGH", "2026-09-01", "10", "90", "899"));
+
+        TaxYearResult result = calculator.calculate(2026, operations, instruments, Map.of());
+
+        // loss 900 - 1000 on average cost without fees, 40% in government bonds:
+        // 100 * (1 - 0.40 * (1 - 0.4808)) = 79.232
+        assertThat(result.zainetto().closingTotal()).isEqualByComparingTo("79.23");
+    }
 }
