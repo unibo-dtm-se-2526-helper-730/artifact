@@ -1,5 +1,6 @@
 import { Fragment, useState } from 'react';
 import { ApiError, api } from '../api';
+import { LOSS_CARRY_FORWARD_YEARS, carriedLossWarning } from '../carriedLosses';
 import { ErrorNotice, Notice } from '../components/Notice';
 import { date, money, percent, quantity } from '../format';
 import { useI18n } from '../i18n';
@@ -8,12 +9,14 @@ import { useLoad } from '../useLoad';
 
 interface Props {
   year: number;
+  /** tax years with imported operations, to check the losses entered by hand */
+  importedYears: number[];
   onDataChanged: () => void;
   onGoToInstruments: () => void;
 }
 
 /** Outcome of the year, the two income categories, the Zainetto and the audit trail. */
-export function SummaryPage({ year, onDataChanged, onGoToInstruments }: Props) {
+export function SummaryPage({ year, importedYears, onDataChanged, onGoToInstruments }: Props) {
   const { t } = useI18n();
   const tax = useLoad(() => api.tax(year), [year]);
 
@@ -41,6 +44,7 @@ export function SummaryPage({ year, onDataChanged, onGoToInstruments }: Props) {
       {tax.data && <Result tax={tax.data} />}
 
       <CarriedLosses
+        importedYears={importedYears}
         onSaved={() => {
           tax.reload();
           onDataChanged();
@@ -227,8 +231,17 @@ function Events({ events, rate }: { events: TaxEvent[]; rate: string }) {
   );
 }
 
-/** Losses from years before the first import: the whole list is saved at once. */
-function CarriedLosses({ onSaved }: { onSaved: () => void }) {
+/**
+ * Losses from years before the first import: the whole list is saved at once. A loss of a
+ * year already imported, or one expired before it, gets a warning but can still be saved.
+ */
+function CarriedLosses({
+  importedYears,
+  onSaved,
+}: {
+  importedYears: number[];
+  onSaved: () => void;
+}) {
   const { t } = useI18n();
   const loaded = useLoad(() => api.carriedLosses(), []);
   const [rows, setRows] = useState<CarriedLoss[] | null>(null);
@@ -264,33 +277,36 @@ function CarriedLosses({ onSaved }: { onSaved: () => void }) {
       <h2>{t('carried.title')}</h2>
       <p className="muted small">{t('carried.intro')}</p>
       {current.map((row, i) => (
-        <div className="form-row" key={i}>
-          <label>
-            {t('carried.year')}
-            <input
-              className="input num-input"
-              type="number"
-              value={row.loss_year}
-              onChange={(e) => update(i, { loss_year: Number(e.target.value) })}
-            />
-          </label>
-          <label>
-            {t('carried.amount')}
-            <input
-              className="input num-input"
-              inputMode="decimal"
-              value={row.amount}
-              onChange={(e) => update(i, { amount: e.target.value })}
-            />
-          </label>
-          <button
-            type="button"
-            className="button secondary small"
-            onClick={() => setRows(current.filter((_, j) => j !== i))}
-          >
-            {t('carried.remove')}
-          </button>
-        </div>
+        <Fragment key={i}>
+          <div className="form-row">
+            <label>
+              {t('carried.year')}
+              <input
+                className="input num-input"
+                type="number"
+                value={row.loss_year}
+                onChange={(e) => update(i, { loss_year: Number(e.target.value) })}
+              />
+            </label>
+            <label>
+              {t('carried.amount')}
+              <input
+                className="input num-input"
+                inputMode="decimal"
+                value={row.amount}
+                onChange={(e) => update(i, { amount: e.target.value })}
+              />
+            </label>
+            <button
+              type="button"
+              className="button secondary small"
+              onClick={() => setRows(current.filter((_, j) => j !== i))}
+            >
+              {t('carried.remove')}
+            </button>
+          </div>
+          <LossWarning lossYear={row.loss_year} importedYears={importedYears} />
+        </Fragment>
       ))}
       <div className="form-actions">
         <button
@@ -310,4 +326,25 @@ function CarriedLosses({ onSaved }: { onSaved: () => void }) {
       {error != null && <ErrorNotice error={error} />}
     </div>
   );
+}
+
+/** The warning of one loss entered by hand, if any. */
+function LossWarning({ lossYear, importedYears }: { lossYear: number; importedYears: number[] }) {
+  const { t } = useI18n();
+  const warning = carriedLossWarning(lossYear, importedYears);
+  if (warning === 'imported') {
+    return <Notice tone="warning">{t('carried.warnImported', { year: lossYear })}</Notice>;
+  }
+  if (warning === 'expired') {
+    return (
+      <Notice tone="warning">
+        {t('carried.warnExpired', {
+          year: lossYear,
+          last: lossYear + LOSS_CARRY_FORWARD_YEARS,
+          first: Math.min(...importedYears),
+        })}
+      </Notice>
+    );
+  }
+  return null;
 }
