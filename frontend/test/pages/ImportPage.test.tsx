@@ -59,6 +59,14 @@ describe('ImportPage', () => {
     ).toBeInTheDocument();
   });
 
+  it('warns that transactions before 2015 are not supported', async () => {
+    renderPage();
+
+    expect(
+      await screen.findByText(/Le operazioni precedenti al 2015 non sono supportate/),
+    ).toBeInTheDocument();
+  });
+
   it('says when there are no imports yet', async () => {
     vi.mocked(api.imports).mockResolvedValue([]);
     renderPage();
