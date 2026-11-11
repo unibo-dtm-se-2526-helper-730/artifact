@@ -16,8 +16,9 @@ public final class Mappings {
      * @param proceedsRigo        quadro T, total proceeds of sales (miscellaneous
      *                            income)
      * @param costRigo            quadro T, total cost of the shares sold
-     * @param carriedLossesRigo   quadro T, losses of the four previous years, one
-     *                            column per year
+     * @param carriedLossesRigo   quadro T, losses not offset and carried forward
+     *                            (the year's included), one column per year of
+     *                            realization
      * @param capitalIncomeRigo   quadro M, foreign capital income taxed by the
      *                            substitute tax
      * @param foreignAssetsPrefix quadro W, prefix of the righi: W1, W2, ...
