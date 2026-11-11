@@ -99,6 +99,8 @@ export function ImportPage({ onDataChanged }: { onDataChanged: () => void }) {
         {t('import.supported', { brokers: Object.values(BROKERS).join(', ') })}
       </p>
 
+      <Notice tone="info">{t('import.before2015')}</Notice>
+
       {uploading && <Notice tone="info">{t('import.uploading', { name: uploading })}</Notice>}
       {error != null && <ErrorNotice error={error} />}
       {deleted && <Notice tone="success">{t('import.deleted', { ...deleted })}</Notice>}

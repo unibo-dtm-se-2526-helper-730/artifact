@@ -28,6 +28,8 @@ const it = {
   'import.title': 'Importa il CSV del broker',
   'import.drop': 'Trascina qui il CSV esportato dal broker oppure',
   'import.supported': 'Broker supportati: {brokers}.',
+  'import.before2015':
+    'Le operazioni precedenti al 2015 non sono supportate: se il file ne contiene, il calcolo delle imposte non è disponibile per nessun anno.',
   'import.broker': 'Broker',
   'import.choose': 'scegli un file',
   'import.uploading': 'Importazione di {name}…',
@@ -205,6 +207,8 @@ const en: Record<Key, string> = {
   'import.title': 'Import the broker CSV',
   'import.drop': 'Drop the CSV exported by your broker here or',
   'import.supported': 'Supported brokers: {brokers}.',
+  'import.before2015':
+    'Transactions before 2015 are not supported: if the file contains any, the tax calculation is not available for any year.',
   'import.broker': 'Broker',
   'import.choose': 'choose a file',
   'import.uploading': 'Importing {name}…',
