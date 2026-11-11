@@ -141,6 +141,8 @@ const it = {
   'declaration.disclaimer':
     "Prospetto di aiuto alla compilazione: verifica sempre i righi sulle istruzioni ufficiali dell'anno.",
   'declaration.empty': "Nessun quadro da compilare per quest'anno.",
+  'declaration.yearOpen':
+    'Il {year} non è ancora finito: il prospetto è provvisorio e il quadro W si completa da gennaio, con i prezzi al 31/12/{year}.',
 
   'ivafe.title': 'IVAFE {year}',
   'ivafe.total': 'IVAFE totale',
@@ -310,6 +312,8 @@ const en: Record<Key, string> = {
   'declaration.disclaimer':
     'A filing aid: always check the rows against the official instructions of the year.',
   'declaration.empty': 'No quadro to fill in for this year.',
+  'declaration.yearOpen':
+    '{year} is not over yet: this summary is provisional and quadro W is completed from January, with the prices at 31/12/{year}.',
 
   'ivafe.title': 'IVAFE {year}',
   'ivafe.total': 'Total IVAFE',

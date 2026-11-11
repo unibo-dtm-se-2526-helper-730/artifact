@@ -1,6 +1,6 @@
 import { ApiError, api } from '../api';
 import { ErrorNotice, Notice } from '../components/Notice';
-import { money } from '../format';
+import { currentYear, money } from '../format';
 import { useI18n } from '../i18n';
 import { useLoad } from '../useLoad';
 
@@ -17,6 +17,10 @@ export function DeclarationPage({
   const unclassified =
     declaration.error instanceof ApiError && declaration.error.code === 'UNCLASSIFIED_INSTRUMENTS';
   const d = declaration.data;
+  // until the year is over there are no prices at 31/12: quadro W is filled from January
+  const yearClosed = year < currentYear();
+  const warnings =
+    d?.warnings.filter((w) => yearClosed || w.code !== 'declaration.missing_year_end_price') ?? [];
 
   return (
     <section>
@@ -35,10 +39,11 @@ export function DeclarationPage({
           <h1>{t('declaration.title', { model: d.model, year: d.year })}</h1>
           <p className="muted small">{t('declaration.disclaimer')}</p>
 
-          {d.warnings.length > 0 && (
+          {!yearClosed && <Notice tone="info">{t('declaration.yearOpen', { year })}</Notice>}
+          {warnings.length > 0 && (
             <Notice tone="warning">
               <ul className="plain">
-                {d.warnings.map((w, i) => (
+                {warnings.map((w, i) => (
                   <li key={i}>{w.text}</li>
                 ))}
               </ul>
