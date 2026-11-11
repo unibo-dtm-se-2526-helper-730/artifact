@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  currentYear,
   date,
   dateTime,
   fractionToPercent,
@@ -68,5 +69,13 @@ describe('percentage fields', () => {
   it('turns a fraction from the API back into a percentage', () => {
     expect(fractionToPercent('0.405')).toBe('40.5');
     expect(fractionToPercent(null)).toBe('');
+  });
+});
+
+describe('currentYear', () => {
+  it('follows Italian time around New Year', () => {
+    // 23:30 UTC on 31 December is already 1 January in Rome
+    expect(currentYear(new Date('2025-12-31T23:30:00Z'))).toBe(2026);
+    expect(currentYear(new Date('2025-12-31T22:30:00Z'))).toBe(2025);
   });
 });
