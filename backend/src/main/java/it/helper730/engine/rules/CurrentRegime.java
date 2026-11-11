@@ -62,11 +62,10 @@ public final class CurrentRegime implements TaxRuleSet {
             case STOCK, BOND, GOVERNMENT_BOND_NON_WL, ETC_ETN -> Treatment.full(IncomeCategory.MISCELLANEOUS);
             case GOVERNMENT_BOND_WL -> new Treatment(IncomeCategory.MISCELLANEOUS, GOVERNMENT_BOND_WEIGHT);
             // UCITS fund units: a gain is capital income (art. 44 TUIR), a loss is
-            // miscellaneous income
+            // miscellaneous income; both are reduced for the share invested in
+            // government bonds
             case UCITS_ETF ->
-                gain
-                        ? new Treatment(IncomeCategory.CAPITAL, ucitsWeight(instrument))
-                        : Treatment.full(IncomeCategory.MISCELLANEOUS);
+                new Treatment(gain ? IncomeCategory.CAPITAL : IncomeCategory.MISCELLANEOUS, ucitsWeight(instrument));
             case NON_UCITS_ETF -> Treatment.excluded();
         };
     }

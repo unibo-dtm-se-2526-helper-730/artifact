@@ -57,7 +57,7 @@ class CurrentRegimeTest {
         Instrument etf = new Instrument("AGGH", null, null, AssetClass.UCITS_ETF, new BigDecimal("0.40"), null);
 
         assertThat(rules.incomeTreatment(etf, OperationType.DIVIDEND).weight()).isEqualByComparingTo("0.79232");
-        assertThat(rules.disposalTreatment(etf, true).weight()).isEqualByComparingTo("0.79232");
+        assertThat(rules.disposalTreatment(etf, false).weight()).isEqualByComparingTo("0.79232");
     }
 
     @Test
