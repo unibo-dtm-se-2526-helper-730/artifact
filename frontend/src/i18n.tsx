@@ -167,6 +167,8 @@ const it = {
     "Il {year} non è ancora finito: l'IVAFE è provvisoria e i prezzi al 31/12/{year} si inseriscono da gennaio.",
   'ivafe.pricesIntro': "Prezzo di chiusura dell'ultimo giorno di borsa dell'anno.",
   'ivafe.savePrices': 'Salva i prezzi e ricalcola',
+  'ivafe.cash':
+    "La liquidità sul conto del broker non è inclusa. Se la giacenza media dell'anno ha superato 5.000 €, devi aggiungere il conto nel quadro W (codice 1, conto corrente) e pagare l'IVAFE fissa di 34,20 €, in proporzione ai giorni. Se il saldo ha superato 15.000 € anche per un solo giorno, il conto va comunque indicato nel quadro W.",
 
   'portfolio.title': 'Portafoglio attuale',
   'portfolio.intro': 'Posizioni aperte valutate al costo di carico.',
@@ -345,6 +347,8 @@ const en: Record<Key, string> = {
     '{year} is not over yet: the IVAFE is provisional and the prices at 31/12/{year} can be entered from January.',
   'ivafe.pricesIntro': 'Closing price of the last trading day of the year.',
   'ivafe.savePrices': 'Save prices and recompute',
+  'ivafe.cash':
+    'Cash on the broker account is not included. If its average balance over the year was above 5,000 €, add the account to quadro W (code 1, current account) and pay the fixed IVAFE of 34.20 €, in proportion to the days. If the balance went above 15,000 € even for a single day, the account must be reported in quadro W anyway.',
 
   'portfolio.title': 'Current portfolio',
   'portfolio.intro': 'Open positions valued at cost.',

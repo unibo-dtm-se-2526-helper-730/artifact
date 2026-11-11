@@ -46,6 +46,8 @@ export function IvafePage({ year }: { year: number }) {
             </Notice>
           )}
 
+          <Notice tone="info">{t('ivafe.cash')}</Notice>
+
           {ivafe.rows.length === 0 ? (
             <p className="muted">{t('common.empty')}</p>
           ) : (
