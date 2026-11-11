@@ -61,8 +61,8 @@ public final class DeclarationBuilder {
     }
 
     /**
-     * Quadro T: proceeds and cost of the sales giving miscellaneous income, losses
-     * of previous years.
+     * Quadro T: proceeds and cost of the sales giving miscellaneous income (T11),
+     * losses to carry forward (T102).
      */
     private static List<DeclarationItem> quadroT(TaxYearResult tax, Mappings.Layout layout) {
         List<DeclarationItem> items = new ArrayList<>();
@@ -93,8 +93,13 @@ public final class DeclarationBuilder {
                     "t11_cost", Msg.of("declaration.t11.cost"), Money.round(cost), layout.costRigo(), null, null));
         }
 
+        // T102 carries forward what is left after the year: the net loss of the year
+        // and the residual of earlier losses, not those that expire on 31 December
+        List<CapitalLoss> toCarry = tax.zainetto().closing().stream()
+                .filter(l -> l.lastUsableYear() > tax.year())
+                .toList();
         int firstColumnYear = tax.year() - 4;
-        for (CapitalLoss loss : tax.zainetto().opening()) {
+        for (CapitalLoss loss : toCarry) {
             int column = Math.max(loss.year() - firstColumnYear + 1, 1);
             items.add(new DeclarationItem(
                     "t102_" + loss.year(),
