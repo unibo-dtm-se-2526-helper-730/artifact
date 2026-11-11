@@ -275,7 +275,7 @@ public final class DeclarationBuilder {
 
         void add(BigDecimal value, BigDecimal tax) {
             amount = amount.add(value);
-            foreignTax = foreignTax.add(tax); //
+            foreignTax = foreignTax.add(tax);
         }
     }
 }
