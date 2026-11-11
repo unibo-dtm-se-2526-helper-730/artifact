@@ -447,11 +447,37 @@ ul.plain {
   border-color: var(--brick);
   color: var(--brick);
 }
-.badge-op-buy,
-.badge-op-sell,
-.badge-op-dividend,
-.badge-op-coupon {
-  background: var(--surface-2);
+/* operation type: a colored dot followed by the label in the same hue, no border or fill */
+.op-tag {
+  --op-color: var(--muted);
+  --op-dot: var(--op-color);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+  color: var(--op-color);
+}
+.op-tag::before {
+  content: '';
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--op-dot);
+}
+.op-tag-buy {
+  --op-color: #234d2c;
+  --op-dot: #3f8f4f;
+}
+.op-tag-sell {
+  --op-color: var(--brick);
+}
+.op-tag-dividend {
+  --op-color: var(--slate);
+}
+.op-tag-coupon {
+  --op-color: #7a4c0c;
+  --op-dot: var(--honey);
 }
 
 /* --- import page -------------------------------------------------------------- */

@@ -38,7 +38,7 @@ export function TransactionsPage({ year }: { year: number }) {
               <tr key={tx.id}>
                 <td>{dateTime(tx.executed_at, lang)}</td>
                 <td>
-                  <span className={`badge badge-op-${tx.type.toLowerCase()}`}>
+                  <span className={`op-tag op-tag-${tx.type.toLowerCase()}`}>
                     {t(`op.${tx.type as 'BUY'}`)}
                   </span>
                 </td>
