@@ -89,7 +89,7 @@ describe('ImportPage', () => {
     await userEvent.upload(document.querySelector<HTMLInputElement>('input[type=file]')!, file);
 
     expect(
-      await screen.findByText('Importate 10 · duplicate 1 · righe con errori 0'),
+      await screen.findByText('Importate 10 · operazioni duplicate 1 · righe con errori 0'),
     ).toBeInTheDocument();
     expect(screen.getByText('Commissione implicita')).toBeInTheDocument();
     expect(api.upload).toHaveBeenCalledWith(file);
