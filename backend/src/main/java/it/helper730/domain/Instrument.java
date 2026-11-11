@@ -57,6 +57,14 @@ public record Instrument(
     }
 
     /**
+     * An instrument seen in an import, with the ISIN and name given by the broker
+     * file (null when the file has none), not yet classified by the user.
+     */
+    public static Instrument unclassified(String ticker, String isin, String name) {
+        return new Instrument(ticker, isin, name, null, null, null);
+    }
+
+    /**
      * Whether the user has chosen an asset class; the tax calculation requires it.
      */
     public boolean isClassified() {

@@ -1,5 +1,6 @@
 package it.helper730.ingestion.traderepublic;
 
+import it.helper730.domain.Instrument;
 import it.helper730.domain.Msg;
 import it.helper730.domain.OperationType;
 import it.helper730.domain.Transaction;
@@ -17,22 +18,26 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import lombok.Getter;
 
 /**
  * TradeRepublicParser.
  *
- * Reads the transaction export of Trade Republic: 23 columns, numbers with a
+ * Reads the transaction export of Trade Republic: 24 columns, numbers with a
  * decimal point, UTC timestamps. The type column holds the operation type of
  * the app ({@code BUY}, {@code SELL}, {@code DIVIDEND}, {@code COUPON},
  * {@code CASH_TOP_UP}, {@code CASH_WITHDRAWAL}). Amount, fee and tax are
  * signed: the total of the operation is {@code |amount + fee + tax|}, so a
  * purchase includes its fee and a sale or a dividend is net of fee and tax.
  * Instruments are identified by ISIN.
+ * The ticker is in the last column; the ISIN (symbol column) and the name of
+ * each security are stored with its instrument.
  */
 public class TradeRepublicParser implements BrokerParser {
 
@@ -59,10 +64,12 @@ public class TradeRepublicParser implements BrokerParser {
             "counterparty_name",
             "counterparty_iban",
             "payment_reference",
-            "mcc_code");
+            "mcc_code",
+            "ticker");
 
     private static final int DATETIME = 0;
     private static final int TYPE = 4;
+    private static final int NAME = 6;
     private static final int SYMBOL = 7;
     private static final int SHARES = 8;
     private static final int PRICE = 9;
@@ -71,6 +78,10 @@ public class TradeRepublicParser implements BrokerParser {
     private static final int TAX = 12;
     private static final int CURRENCY = 13;
     private static final int TRANSACTION_ID = 18;
+    private static final int TICKER = 23;
+
+    /** Length of instruments.name in the database. */
+    private static final int MAX_NAME_LENGTH = 255;
 
     private final ValidationChain validation;
 
@@ -96,8 +107,10 @@ public class TradeRepublicParser implements BrokerParser {
 
     @Override
     public ParseResult parse(List<CsvRow> rows) {
-        List<Transaction> transacions = new ArrayList<>();
+        List<Transaction> transactions = new ArrayList<>();
+        Map<String, Instrument> instruments = new HashMap<>();
         List<RowIssue> issues = new ArrayList<>();
+
         for (CsvRow row : rows) {
             if (row.isBlank()) {
                 continue;
@@ -105,10 +118,14 @@ public class TradeRepublicParser implements BrokerParser {
 
             try {
                 Transaction transaction = toTransaction(row);
+                Instrument instrument = instrumentOf(row, transaction.ticker());
                 List<RowIssue> found = validation.validate(transaction);
                 issues.addAll(found);
                 if (found.stream().noneMatch(i -> i.severity() == Severity.ERROR)) {
-                    transacions.add(transaction);
+                    transactions.add(transaction);
+                    if (instrument != null) {
+                        instruments.put(instrument.ticker(), instrument);
+                    }
                 }
             } catch (RowException e) {
                 issues.add(RowIssue.error(row.line(), e.msg()));
@@ -116,14 +133,30 @@ public class TradeRepublicParser implements BrokerParser {
                 issues.add(RowIssue.error(row.line(), e.msg()));
             }
         }
-        return new ParseResult(broker(), transacions, issues);
+        return new ParseResult(broker(), transactions, issues, instruments);
+    }
+
+    /**
+     * The security of a row, with ISIN and name, or null for a cash row. An
+     * invalid ISIN makes the row an error, as the instrument rejects it.
+     */
+    private static Instrument instrumentOf(CsvRow row, String ticker) {
+        if (ticker == null) {
+            return null;
+        }
+        String isin = row.field(SYMBOL);
+        String name = row.field(NAME);
+        return Instrument.unclassified(
+                ticker,
+                isin.isEmpty() ? null : isin,
+                name.isEmpty() ? null : name.substring(0, Math.min(name.length(), MAX_NAME_LENGTH)));
     }
 
     private Transaction toTransaction(CsvRow row) {
         int line = row.line();
         Instant executedAt = parseInstant(row.field(DATETIME), line);
         OperationType type = parseType(row.field(TYPE), line);
-        String ticker = row.field(SYMBOL).isEmpty() ? null : row.field(SYMBOL);
+        String ticker = row.field(TICKER).isEmpty() ? null : row.field(TICKER);
         BigDecimal shares = number(row, SHARES, "shares");
         BigDecimal price = number(row, PRICE, "price");
         BigDecimal amount = number(row, AMOUNT, "amount");
@@ -131,7 +164,7 @@ public class TradeRepublicParser implements BrokerParser {
             throw new RowException(Msg.of("error.missing_field", "amount", line));
         }
         BigDecimal fee = orZero(number(row, FEE, "fee"));
-        BigDecimal tax = orZero(number(row, TAX, "fee"));
+        BigDecimal tax = orZero(number(row, TAX, "tax"));
         BigDecimal total = amount.add(fee).add(tax).abs();
         BigDecimal quantity = shares == null ? null : shares.abs();
 

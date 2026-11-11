@@ -2,6 +2,7 @@ package it.helper730.ingestion.traderepublic;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import it.helper730.domain.Instrument;
 import it.helper730.domain.OperationType;
 import it.helper730.ingestion.BrokerParserRegistry;
 import it.helper730.ingestion.CsvReader;
@@ -14,6 +15,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -36,9 +38,20 @@ class TradeRepublicParserTest {
         return registry.parse(HEADER + String.join("\n", rows) + "\n");
     }
 
-    /** A row of the export: only the columns read by the parser have a value. */
+    /**
+     * A row of the export: only the columns read by the parser have a value. The
+     * ISIN of a security is in the symbol column, its ticker in the last one.
+     */
     private static String row(
-            String type, String symbol, String shares, String price, String amount, String fee, String tax, String id) {
+            String type,
+            String ticker,
+            String isin,
+            String shares,
+            String price,
+            String amount,
+            String fee,
+            String tax,
+            String id) {
         String datetime = "2025-06-02T09:31:56.778Z";
         return String.join(
                 ",",
@@ -49,7 +62,7 @@ class TradeRepublicParserTest {
                 type,
                 "",
                 "",
-                symbol,
+                isin,
                 shares,
                 price,
                 amount,
@@ -64,31 +77,34 @@ class TradeRepublicParserTest {
                 "",
                 "",
                 "",
-                "");
+                "",
+                ticker);
     }
 
     @Test
     void aPurchaseIncludesItsFee() {
         ParseResult result =
-                parse(row("BUY", "IE00BK5BQT80", "1.6000000000", "125.000000", "-200.00", "-1.00", "", "a"));
+                parse(row("BUY", "VWCE", "IE00BK5BQT80", "1.6000000000", "125.000000", "-200.00", "-1.00", "", "a"));
 
         assertThat(result.broker()).isEqualTo("TRADE_REPUBLIC");
         assertThat(result.issues()).isEmpty();
         assertThat(result.transactions()).singleElement().satisfies(t -> {
             assertThat(t.type()).isEqualTo(OperationType.BUY);
-            assertThat(t.ticker()).isEqualTo("IE00BK5BQT80");
+            assertThat(t.ticker()).isEqualTo("VWCE");
             assertThat(t.executedAt()).isEqualTo(Instant.parse("2025-06-02T09:31:56.778Z"));
             assertThat(t.quantity()).isEqualByComparingTo("1.6");
             assertThat(t.pricePerShare()).isEqualByComparingTo("125");
             assertThat(t.totalAmount()).isEqualByComparingTo("201.00");
             assertThat(t.fileRow()).isEqualTo(2);
         });
+        assertThat(result.instruments())
+                .containsExactlyEntriesOf(Map.of("VWCE", Instrument.unclassified("VWCE", "IE00BK5BQT80", null)));
     }
 
     @Test
     void aSaleIsNetOfItsFeeAndHasAPositiveQuantity() {
         ParseResult result =
-                parse(row("SELL", "IE00BK5BQT80", "-2.0000000000", "150.000000", "300.00", "-1.00", "", "b"));
+                parse(row("SELL", "VWCE", "IE00BK5BQT80", "-2.0000000000", "150.000000", "300.00", "-1.00", "", "b"));
 
         assertThat(result.transactions()).singleElement().satisfies(t -> {
             assertThat(t.type()).isEqualTo(OperationType.SELL);
@@ -99,7 +115,7 @@ class TradeRepublicParserTest {
 
     @Test
     void aDividendIsNetOfTax() {
-        ParseResult result = parse(row("DIVIDEND", "US0378331005", "", "", "10.00", "", "-1.50", "c"));
+        ParseResult result = parse(row("DIVIDEND", "AAPL", "US0378331005", "", "", "10.00", "", "-1.50", "c"));
 
         assertThat(result.issues()).isEmpty();
         assertThat(result.transactions()).singleElement().satisfies(t -> {
@@ -113,8 +129,8 @@ class TradeRepublicParserTest {
     @CsvSource({"CASH_TOP_UP, 300.00, CASH_TOP_UP", "CASH_WITHDRAWAL, -200.00, CASH_WITHDRAWAL", "coupon, 5.00, COUPON"
     })
     void theTypeColumnHoldsTheOperationType(String type, String amount, OperationType expected) {
-        String symbol = expected == OperationType.COUPON ? "XS0000000001" : "";
-        ParseResult result = parse(row(type, symbol, "", "", amount, "", "", "d"));
+        String ticker = expected == OperationType.COUPON ? "BOND1" : "";
+        ParseResult result = parse(row(type, ticker, "", "", "", amount, "", "", "d"));
 
         assertThat(result.transactions()).singleElement().satisfies(t -> {
             assertThat(t.type()).isEqualTo(expected);
@@ -125,8 +141,8 @@ class TradeRepublicParserTest {
     @Test
     void aRowWithAnUnknownTypeIsAnErrorAndTheOthersAreImported() {
         ParseResult result = parse(
-                row("INTEREST_PAYMENT", "", "", "", "0.50", "", "", "e"),
-                row("CASH_TOP_UP", "", "", "", "100.00", "", "", "f"));
+                row("INTEREST_PAYMENT", "", "", "", "", "0.50", "", "", "e"),
+                row("CASH_TOP_UP", "", "", "", "", "100.00", "", "", "f"));
 
         assertThat(result.transactions()).hasSize(1);
         assertThat(result.errors()).singleElement().satisfies(e -> {
@@ -137,7 +153,7 @@ class TradeRepublicParserTest {
 
     @Test
     void aRowWithoutTransactionIdIsAnError() {
-        ParseResult result = parse(row("CASH_TOP_UP", "", "", "", "100.00", "", "", ""));
+        ParseResult result = parse(row("CASH_TOP_UP", "", "", "", "", "100.00", "", "", ""));
 
         assertThat(result.transactions()).isEmpty();
         assertThat(result.errors())
@@ -147,13 +163,41 @@ class TradeRepublicParserTest {
 
     @Test
     void theIdDependsOnlyOnTheTransactionId() {
-        ParseResult first = parse(row("CASH_TOP_UP", "", "", "", "100.00", "", "", "same"));
-        ParseResult again = parse(row("CASH_TOP_UP", "", "", "", "100.00", "", "", "same"));
-        ParseResult other = parse(row("CASH_TOP_UP", "", "", "", "100.00", "", "", "other"));
+        ParseResult first = parse(row("CASH_TOP_UP", "", "", "", "", "100.00", "", "", "same"));
+        ParseResult again = parse(row("CASH_TOP_UP", "", "", "", "", "100.00", "", "", "same"));
+        ParseResult other = parse(row("CASH_TOP_UP", "", "", "", "", "100.00", "", "", "other"));
 
         String id = first.transactions().getFirst().id();
         assertThat(again.transactions().getFirst().id()).isEqualTo(id);
         assertThat(other.transactions().getFirst().id()).isNotEqualTo(id);
+    }
+
+    @Test
+    void theNameOfTheSecurityGoesToTheInstrument() {
+        String withName = row("BUY", "VWCE", "IE00BK5BQT80", "1", "100", "-100.00", "-1.00", "", "h")
+                .replace(",,IE00BK5BQT80,", ",Vanguard FTSE All-World,IE00BK5BQT80,");
+
+        ParseResult result = parse(withName);
+
+        assertThat(result.instruments().get("VWCE").name()).isEqualTo("Vanguard FTSE All-World");
+    }
+
+    @Test
+    void cashRowsDescribeNoInstrument() {
+        ParseResult result = parse(row("CASH_TOP_UP", "", "", "", "", "100.00", "", "", "i"));
+
+        assertThat(result.instruments()).isEmpty();
+    }
+
+    @Test
+    void anInvalidIsinIsAnError() {
+        ParseResult result = parse(row("BUY", "VWCE", "NOTANISIN", "1", "100", "-100.00", "-1.00", "", "g"));
+
+        assertThat(result.transactions()).isEmpty();
+        assertThat(result.instruments()).isEmpty();
+        assertThat(result.errors())
+                .singleElement()
+                .satisfies(e -> assertThat(e.msg().code()).isEqualTo("error.invalid_isin"));
     }
 
     @Test

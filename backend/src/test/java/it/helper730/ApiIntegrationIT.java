@@ -199,9 +199,9 @@ class ApiIntegrationIT {
 
     @Test
     void tradeRepublicCsvGivesTheExpectedTaxAndGermanyInQuadroW() throws Exception {
-        String vwce = "IE00BK5BQT80";
-        String sxr8 = "IE00B5BMR087";
-        String aapl = "US0378331005";
+        String vwce = "VWCE";
+        String sxr8 = "SXR8";
+        String aapl = "AAPL";
 
         upload(tradeRepublicGolden(), "trade_republic_golden.csv")
                 .andExpect(status().isCreated())
@@ -211,7 +211,15 @@ class ApiIntegrationIT {
 
         mvc.perform(get(API + "/imports")).andExpect(jsonPath("$[0].broker").value("TRADE_REPUBLIC"));
 
-        // Trade Republic identifies instruments by ISIN
+        // the file gives ISIN and name: the new instruments have them before
+        // classification
+        mvc.perform(get(API + "/instruments"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.ticker == 'VWCE')].isin").value(hasItem("IE00BK5BQT80")))
+                .andExpect(
+                        jsonPath("$[?(@.ticker == 'VWCE')].name").value(hasItem("Vanguard FTSE All-World USD (Acc)")))
+                .andExpect(jsonPath("$[?(@.ticker == 'AAPL')].isin").value(hasItem("US0378331005")));
+
         classify(vwce, "UCITS_ETF");
         classify(sxr8, "UCITS_ETF");
         classify(aapl, "STOCK");
