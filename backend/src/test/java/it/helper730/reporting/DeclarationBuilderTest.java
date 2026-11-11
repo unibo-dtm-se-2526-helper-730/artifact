@@ -76,6 +76,20 @@ class DeclarationBuilderTest {
                 row);
     }
 
+    private static Transaction trade(
+            int row, String instant, OperationType type, String quantity, String price, String total) {
+        return new Transaction(
+                String.format("%064x", row),
+                Instant.parse(instant),
+                type,
+                "AAPL",
+                new BigDecimal(quantity),
+                new BigDecimal(price),
+                new BigDecimal(total),
+                "EUR",
+                row);
+    }
+
     @Test
     void goldenDeclarationFor2026() {
         Declaration declaration =
@@ -99,7 +113,7 @@ class DeclarationBuilderTest {
     }
 
     @Test
-    void lossesOfPreviousYearsGoInT102InTheColumnOfTheirYear() {
+    void lossesToCarryForwardGoInT102InTheColumnOfTheirYear() {
         Declaration declaration = build(
                 2026,
                 GoldenData.operations(),
@@ -107,10 +121,54 @@ class DeclarationBuilderTest {
                 Map.of(2024, new BigDecimal("30")),
                 GOLDEN_PRICES_2026);
 
-        DeclarationItem loss = item(declaration, "T", "t102_2024");
-        // columns 1-4 are 2022-2025
-        assertThat(loss.rigo()).isEqualTo("T102 col. 3");
-        assertThat(loss.amount()).isEqualByComparingTo("30");
+        // columns 1-5 are 2022-2026
+        DeclarationItem previous = item(declaration, "T", "t102_2024");
+        assertThat(previous.rigo()).isEqualTo("T102 col. 3");
+        assertThat(previous.amount()).isEqualByComparingTo("30");
+        // the net loss of the year (5J50: 390.10 - 407.00) is carried forward too
+        DeclarationItem current = item(declaration, "T", "t102_2026");
+        assertThat(current.rigo()).isEqualTo("T102 col. 5");
+        assertThat(current.amount()).isEqualByComparingTo("16.90");
+    }
+
+    @Test
+    void t102ListsOnlyWhatIsLeftAfterTheYear() {
+        Map<String, Instrument> instruments =
+                Map.of("AAPL", new Instrument("AAPL", "US0378331005", null, AssetClass.STOCK, null, null));
+        List<Transaction> operations = List.of(
+                trade(1, "2026-02-01T10:00:00Z", OperationType.BUY, "1", "100", "101"),
+                trade(2, "2026-06-01T10:00:00Z", OperationType.SELL, "1", "150", "149"));
+
+        // gain 48: the 2022 loss (oldest, last usable in 2026) and 18 of the 2023 one
+        // are used
+        Declaration declaration = build(
+                2026,
+                operations,
+                instruments,
+                Map.of(2022, new BigDecimal("30"), 2023, new BigDecimal("40"), 2024, new BigDecimal("25")),
+                Map.of());
+
+        assertThat(declaration.section("T").orElseThrow().items())
+                .extracting(DeclarationItem::key)
+                .containsExactly("t11_proceeds", "t11_cost", "t102_2023", "t102_2024");
+        assertThat(item(declaration, "T", "t102_2023").amount()).isEqualByComparingTo("22");
+        assertThat(item(declaration, "T", "t102_2024").amount()).isEqualByComparingTo("25");
+    }
+
+    @Test
+    void aLossThatExpiresInTheYearIsNotCarriedForward() {
+        Declaration declaration = build(
+                2026,
+                GoldenData.operations(),
+                GoldenData.instruments(),
+                Map.of(2022, new BigDecimal("30")),
+                GOLDEN_PRICES_2026);
+
+        // the 2022 loss is usable until 31/12/2026, but 2026 has no gain to offset
+        assertThat(declaration.section("T").orElseThrow().items())
+                .extracting(DeclarationItem::key)
+                .doesNotContain("t102_2022")
+                .contains("t102_2026");
     }
 
     @Test
