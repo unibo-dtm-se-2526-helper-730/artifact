@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api';
 import { ErrorNotice, Notice } from '../components/Notice';
-import { date, money, quantity } from '../format';
+import { currentYear, date, money, quantity } from '../format';
 import { useI18n } from '../i18n';
 import type { Ivafe } from '../types';
 import { useLoad } from '../useLoad';
@@ -18,6 +18,8 @@ export function IvafePage({ year }: { year: number }) {
   );
 
   const [ivafe, prices, previous] = data.data ?? [null, null, null];
+  // the prices at 31/12 exist only once the year is over
+  const yearClosed = year < currentYear();
 
   return (
     <section>
@@ -37,7 +39,8 @@ export function IvafePage({ year }: { year: number }) {
               )}
             </div>
           </div>
-          {!ivafe.complete && (
+          {!yearClosed && <Notice tone="info">{t('ivafe.yearOpen', { year })}</Notice>}
+          {yearClosed && !ivafe.complete && (
             <Notice tone="warning">
               {t('ivafe.missing', { tickers: ivafe.missing_prices.join(', ') })}
             </Notice>
@@ -65,7 +68,7 @@ export function IvafePage({ year }: { year: number }) {
                     <td>{row.ticker}</td>
                     <td className="num">{quantity(row.quantity, lang)}</td>
                     <td className="nowrap">
-                      {date(row.from, lang)} - {date(row.to, lang)}
+                      {date(row.from, lang)} – {date(row.to, lang)}
                     </td>
                     <td className="num">{row.holding_days}</td>
                     <td className="num">{money(row.initial_value, lang)}</td>
@@ -83,6 +86,7 @@ export function IvafePage({ year }: { year: number }) {
             ivafe={ivafe}
             prices={prices.prices}
             previousPrices={previous.prices}
+            yearClosed={yearClosed}
             onSaved={data.reload}
           />
         </>
@@ -96,15 +100,19 @@ interface PriceFormProps {
   ivafe: Ivafe;
   prices: Record<string, string>;
   previousPrices: Record<string, string>;
+  yearClosed: boolean;
   onSaved: () => void;
 }
 
-function PriceForm({ year, ivafe, prices, previousPrices, onSaved }: PriceFormProps) {
+function PriceForm({ year, ivafe, prices, previousPrices, yearClosed, onSaved }: PriceFormProps) {
   const { t } = useI18n();
   const firstDay = `${year}-01-01`;
 
-  // which prices are needed: held at 31/12 of this year, held on 1/1 (= 31/12 of the year before)
-  const heldAtEnd = unique(ivafe.rows.filter((r) => !r.sold).map((r) => r.ticker));
+  // which prices are needed: held at 31/12 of this year (once it is over),
+  // held on 1/1 (= 31/12 of the year before)
+  const heldAtEnd = yearClosed
+    ? unique(ivafe.rows.filter((r) => !r.sold).map((r) => r.ticker))
+    : [];
   const heldAtStart = unique(ivafe.rows.filter((r) => r.from === firstDay).map((r) => r.ticker));
 
   const [current, setCurrent] = useState(prices);
@@ -123,7 +131,7 @@ function PriceForm({ year, ivafe, prices, previousPrices, onSaved }: PriceFormPr
     setError(null);
     try {
       // the API replaces all the prices of a year: send the complete maps, empty fields removed
-      await api.savePrices(year, clean(current));
+      if (heldAtEnd.length > 0) await api.savePrices(year, clean(current));
       if (heldAtStart.length > 0) await api.savePrices(year - 1, clean(before));
       onSaved();
     } catch (e) {

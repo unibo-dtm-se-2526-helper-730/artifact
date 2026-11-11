@@ -154,6 +154,8 @@ const it = {
   'ivafe.amount': 'IVAFE',
   'ivafe.notes': 'Note',
   'ivafe.prices': 'Prezzi al 31/12',
+  'ivafe.yearOpen':
+    "Il {year} non è ancora finito: l'IVAFE è provvisoria e i prezzi al 31/12/{year} si inseriscono da gennaio.",
   'ivafe.pricesIntro': "Prezzo di chiusura dell'ultimo giorno di borsa dell'anno.",
   'ivafe.savePrices': 'Salva i prezzi e ricalcola',
 
@@ -321,6 +323,8 @@ const en: Record<Key, string> = {
   'ivafe.amount': 'IVAFE',
   'ivafe.notes': 'Notes',
   'ivafe.prices': 'Prices at 31/12',
+  'ivafe.yearOpen':
+    '{year} is not over yet: the IVAFE is provisional and the prices at 31/12/{year} can be entered from January.',
   'ivafe.pricesIntro': 'Closing price of the last trading day of the year.',
   'ivafe.savePrices': 'Save prices and recompute',
 

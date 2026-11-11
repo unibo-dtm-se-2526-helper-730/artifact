@@ -57,3 +57,10 @@ export function fractionToPercent(fraction: string | null): string {
   if (fraction == null) return '';
   return String(Number((Number(fraction) * 100).toFixed(6)));
 }
+
+/** The current year in Italian time: a year can be declared only once it is over. */
+export function currentYear(now: Date = new Date()): number {
+  return Number(
+    new Intl.DateTimeFormat('en', { timeZone: 'Europe/Rome', year: 'numeric' }).format(now),
+  );
+}
