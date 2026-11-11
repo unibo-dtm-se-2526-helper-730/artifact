@@ -155,7 +155,8 @@ public final class DeclarationBuilder {
         int rigo = 1;
         for (IvafeRow row : ivafe.rows()) {
             if (!row.isComputed()) {
-                warnings.add(Msg.of("declaration.missing_year_end_price", row.ticker()));
+                // one warning per ticker: a ticker can have several holding periods
+                addOnce(warnings, Msg.of("declaration.missing_year_end_price", row.ticker()));
                 continue;
             }
             String state = stateCode(row.ticker(), countriesByTicker, warnings);

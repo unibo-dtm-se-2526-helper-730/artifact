@@ -179,4 +179,18 @@ class DeclarationBuilderTest {
                 .contains("094", "");
         assertThat(declaration.warnings()).containsOnlyOnce(Msg.of("declaration.country_not_unique", "VGWD", "DE, LT"));
     }
+
+    @Test
+    void aMissingPriceIsReportedOncePerTicker() {
+        TaxYearResult tax = taxCalculator.calculate(2026, GoldenData.operations(), GoldenData.instruments(), Map.of());
+        IvafeResult ivafe = ivafeCalculator.calculate(2026, GoldenData.operations(), Map.of(), Map.of());
+
+        Declaration declaration = builder.build(tax, ivafe, GoldenData.instruments(), Map.of());
+
+        // VGWD has three holding periods in 2026, but one warning
+        assertThat(declaration.warnings())
+                .filteredOn(w -> w.code().equals("declaration.missing_year_end_price"))
+                .extracting(w -> w.params().getFirst())
+                .containsExactly("CEBS", "EUNK", "VGWD", "XEON");
+    }
 }
