@@ -115,7 +115,7 @@ public final class DeclarationBuilder {
     /**
      * Quadro M: capital income grouped by income code, state of origin and rate.
      * Income from a UCITS ETF is split between 26% and 12.5% according to its share
-     * of government bonds.
+     * of government bonds; the foreign tax withheld is split in the same way.
      */
     private static List<DeclarationItem> quadroM(
             TaxYearResult tax, Mappings.Layout layout, Map<String, Instrument> instruments, Warnings warnings) {
@@ -130,11 +130,14 @@ public final class DeclarationBuilder {
             BigDecimal reducedShare = reducedRateShare(instrument);
             BigDecimal reduced = Money.round(event.amount().multiply(reducedShare));
             BigDecimal full = event.amount().subtract(reduced);
+            // the foreign tax follows the income: same split between the two rates
+            BigDecimal reducedTax = Money.round(event.foreignTax().multiply(reducedShare));
+            BigDecimal fullTax = event.foreignTax().subtract(reducedTax);
             if (full.signum() > 0) {
-                line(lines, code, state, FULL_RATE).add(full, event.foreignTax());
+                line(lines, code, state, FULL_RATE).add(full, fullTax);
             }
             if (reduced.signum() > 0) {
-                line(lines, code, state, REDUCED_RATE).add(reduced, BigDecimal.ZERO);
+                line(lines, code, state, REDUCED_RATE).add(reduced, reducedTax);
             }
         }
         List<DeclarationItem> items = new ArrayList<>();

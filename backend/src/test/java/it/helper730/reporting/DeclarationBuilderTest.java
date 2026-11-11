@@ -190,6 +190,31 @@ class DeclarationBuilderTest {
     }
 
     @Test
+    void foreignTaxOnGovernmentBondCouponsGoesToThe12Point5Line() {
+        Map<String, Instrument> instruments = Map.of(
+                "OAT",
+                new Instrument(
+                        "OAT", "FR0010070060", null, AssetClass.GOVERNMENT_BOND_WL, null, new BigDecimal("0.15")));
+        List<Transaction> operations = List.of(new Transaction(
+                String.format("%064x", 1),
+                Instant.parse("2026-03-01T10:00:00Z"),
+                OperationType.COUPON,
+                "OAT",
+                null,
+                null,
+                new BigDecimal("85"),
+                "EUR",
+                1));
+
+        Declaration declaration = build(2026, operations, instruments, Map.of(), Map.of());
+
+        // net 85 with 15% withheld in France: gross 100, foreign tax 15, all at 12.5%
+        DeclarationItem coupon = item(declaration, "M", "m31_A_029_12.5");
+        assertThat(coupon.amount()).isEqualByComparingTo("100.00");
+        assertThat(coupon.secondary()).isEqualByComparingTo("15.00");
+    }
+
+    @Test
     void missingIsinAndMissingPriceAreReported() {
         Map<String, Instrument> instruments = GoldenData.instruments();
         instruments.put("VGWD", new Instrument("VGWD", null, null, AssetClass.UCITS_ETF, null, null));
