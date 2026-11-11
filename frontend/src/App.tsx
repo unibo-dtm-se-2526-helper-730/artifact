@@ -120,6 +120,7 @@ export function App() {
                 <SummaryPage
                   key={`${year}-${lang}`}
                   year={year}
+                  importedYears={years.data?.map((y) => y.year) ?? []}
                   onDataChanged={onDataChanged}
                   onGoToInstruments={() => go('instruments')}
                 />

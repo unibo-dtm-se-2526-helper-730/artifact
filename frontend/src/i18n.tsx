@@ -31,7 +31,8 @@ const it = {
   'import.broker': 'Broker',
   'import.choose': 'scegli un file',
   'import.uploading': 'Importazione di {name}…',
-  'import.result': 'Importate {imported} · duplicate {duplicates} · righe con errori {errors}',
+  'import.result':
+    'Importate {imported} · operazioni duplicate {duplicates} · righe con errori {errors}',
   'import.row': 'Riga',
   'import.severity': 'Tipo',
   'import.message': 'Messaggio',
@@ -131,6 +132,10 @@ const it = {
   'carried.amount': 'Importo (€)',
   'carried.add': 'Aggiungi anno',
   'carried.remove': 'Rimuovi',
+  'carried.warnImported':
+    "Per il {year} ci sono già operazioni importate e l'app ne calcola da sola le perdite: inserisci qui solo perdite di altri broker o non presenti nei file, altrimenti vengono contate due volte.",
+  'carried.warnExpired':
+    'Una perdita del {year} si può usare fino al {last}, prima del primo anno importato ({first}): non verrà mai utilizzata.',
 
   'declaration.title': "Modello {model} - anno d'imposta {year}",
   'declaration.rigo': 'Rigo',
@@ -194,7 +199,7 @@ const en: Record<Key, string> = {
   'common.saved': 'Saved.',
   'common.cancel': 'Cancel',
   'common.loading': 'Loading…',
-  'common.network': 'The backend does not answer. Is it running on http://localhost:8080?',
+  'common.network': 'The backend is not responding. Is it running on http://localhost:8080?',
   'common.empty': 'No data.',
 
   'import.title': 'Import the broker CSV',
@@ -266,16 +271,16 @@ const en: Record<Key, string> = {
   'summary.nothing': 'No tax to pay.',
   'summary.economic': 'Economic result of {year}',
   'summary.misc': 'Miscellaneous income',
-  'summary.miscHint': 'Gains and losses that can be offset with the Zainetto',
+  'summary.miscHint': 'Gains and losses that can be offset with the loss carryforward',
   'summary.capital': 'Capital income',
   'summary.capitalHint': 'Dividends, coupons and gains on UCITS ETFs: never offset',
   'summary.taxable': 'Taxable',
   'summary.tax': 'Tax ({rate}%)',
-  'summary.zainetto': 'Zainetto',
+  'summary.zainetto': 'Loss carryforward',
   'summary.zainettoTotal': 'Available at year end',
   'summary.used': 'Used this year',
   'summary.expires': 'from {year}: {amount}, usable until 31/12/{last}',
-  'summary.zainettoEmpty': 'The Zainetto is empty.',
+  'summary.zainettoEmpty': 'There are no carried-forward losses.',
   'summary.unclassified': 'To compute {year}, first classify these instruments: {tickers}.',
   'summary.goInstruments': 'Go to Instruments',
   'summary.events': 'Where every euro comes from',
@@ -297,11 +302,16 @@ const en: Record<Key, string> = {
   'lots.proceeds': 'Proceeds',
   'lots.gain': 'Result',
   'carried.title': 'Losses from previous years',
-  'carried.intro': 'Losses realized before the first import: they open the Zainetto.',
+  'carried.intro':
+    'Losses realized before the first import: they are added to the initial loss carryforward.',
   'carried.year': 'Year',
   'carried.amount': 'Amount (€)',
   'carried.add': 'Add year',
   'carried.remove': 'Remove',
+  'carried.warnImported':
+    'There are already imported transactions for {year}, and the app computes their losses itself: enter here only losses from other brokers or missing from the files, otherwise they are counted twice.',
+  'carried.warnExpired':
+    'A {year} loss can be used until {last}, before the first imported year ({first}): it will never be used.',
 
   'declaration.title': 'Modello {model} - tax year {year}',
   'declaration.rigo': 'Rigo',
