@@ -14,6 +14,8 @@ import it.helper730.domain.ivafe.IvafeRow;
 import it.helper730.domain.zainetto.CapitalLoss;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,15 +49,15 @@ public final class DeclarationBuilder {
             throw new IllegalArgumentException("Tax and IVAFE results of different years");
         }
         Mappings.Layout layout = Mappings.forYear(tax.year());
-        List<Msg> warnings = new ArrayList<>();
+        Warnings warnings = new Warnings();
         List<DeclarationSection> sections = new ArrayList<>();
 
         addIfNotEmpty(sections, "T", "declaration.quadro_t", quadroT(tax, layout));
         addIfNotEmpty(sections, "M", "declaration.quadro_m", quadroM(tax, layout, instruments, warnings));
         addIfNotEmpty(sections, "W", "declaration.quadro_w", quadroW(ivafe, layout, countriesByTicker, warnings));
 
-        tax.excludedEvents().forEach(e -> warnings.add(Msg.of("declaration.excluded_instrument", e.ticker())));
-        return new Declaration(tax.year(), Mappings.modelName(tax.year()), sections, warnings);
+        tax.excludedEvents().forEach(e -> warnings.addOnce("declaration.excluded_instrument", e.ticker()));
+        return new Declaration(tax.year(), Mappings.modelName(tax.year()), sections, warnings.list());
     }
 
     /**
@@ -107,12 +109,11 @@ public final class DeclarationBuilder {
 
     /**
      * Quadro M: capital income grouped by income code, state of origin and rate.
-     * Income from a UCITS
-     * ETF is split between 26% and 12.5% according to its share of government
-     * bonds.
+     * Income from a UCITS ETF is split between 26% and 12.5% according to its share
+     * of government bonds.
      */
     private static List<DeclarationItem> quadroM(
-            TaxYearResult tax, Mappings.Layout layout, Map<String, Instrument> instruments, List<Msg> warnings) {
+            TaxYearResult tax, Mappings.Layout layout, Map<String, Instrument> instruments, Warnings warnings) {
         Map<String, Line> lines = new LinkedHashMap<>();
         for (TaxableEvent event : tax.events()) {
             if (event.category() != IncomeCategory.CAPITAL) {
@@ -150,13 +151,13 @@ public final class DeclarationBuilder {
     }
 
     private static List<DeclarationItem> quadroW(
-            IvafeResult ivafe, Mappings.Layout layout, Map<String, Set<String>> countriesByTicker, List<Msg> warnings) {
+            IvafeResult ivafe, Mappings.Layout layout, Map<String, Set<String>> countriesByTicker, Warnings warnings) {
         List<DeclarationItem> items = new ArrayList<>();
         int rigo = 1;
         for (IvafeRow row : ivafe.rows()) {
             if (!row.isComputed()) {
                 // one warning per ticker: a ticker can have several holding periods
-                addOnce(warnings, Msg.of("declaration.missing_year_end_price", row.ticker()));
+                warnings.addOnce("declaration.missing_year_end_price", row.ticker());
                 continue;
             }
             String state = stateCode(row.ticker(), countriesByTicker, warnings);
@@ -184,27 +185,18 @@ public final class DeclarationBuilder {
      * bought at. Empty, with a warning, when it cannot be told: unknown country,
      * or the same ticker held at brokers of different countries.
      */
-    private static String stateCode(String ticker, Map<String, Set<String>> countriesByTicker, List<Msg> warnings) {
+    private static String stateCode(String ticker, Map<String, Set<String>> countriesByTicker, Warnings warnings) {
         Set<String> countries = countriesByTicker.getOrDefault(ticker, Set.of());
         if (countries.size() != 1) {
-            addOnce(warnings, Msg.of("declaration.country_not_unique", ticker, String.join(", ", countries)));
+            warnings.addOnce("declaration.country_not_unique", ticker, String.join(", ", countries));
             return "";
         }
         String country = countries.iterator().next();
         String state = Mappings.stateCode(country).orElse("");
         if (state.isEmpty()) {
-            addOnce(warnings, Msg.of("declaration.unknown_state", country));
+            warnings.addOnce("declaration.unknown_state", country);
         }
         return state;
-    }
-
-    /**
-     * Adds a warning unless it is already there: a ticker can have several rows.
-     */
-    private static void addOnce(List<Msg> warnings, Msg msg) {
-        if (!warnings.contains(msg)) {
-            warnings.add(msg);
-        }
     }
 
     private static String incomeCode(AssetClass assetClass, EventType type) {
@@ -227,13 +219,10 @@ public final class DeclarationBuilder {
     }
 
     /** State of origin of the income, from the first two letters of the ISIN. */
-    private static String stateOf(Instrument instrument, List<Msg> warnings) {
+    private static String stateOf(Instrument instrument, Warnings warnings) {
         String iso = instrument.isin() == null ? null : instrument.isin().substring(0, 2);
         return Mappings.stateCode(iso).orElseGet(() -> {
-            Msg warning = Msg.of("declaration.unknown_state_of_origin", instrument.ticker());
-            if (!warnings.contains(warning)) {
-                warnings.add(warning);
-            }
+            warnings.addOnce("declaration.unknown_state_of_origin", instrument.ticker());
             return "";
         });
     }
@@ -246,6 +235,27 @@ public final class DeclarationBuilder {
             List<DeclarationSection> sections, String quadro, String title, List<DeclarationItem> items) {
         if (!items.isEmpty()) {
             sections.add(new DeclarationSection(quadro, Msg.of(title), items));
+        }
+    }
+
+    /**
+     * Warnings of a declaration, each one added once: a ticker can have several
+     * holding periods and several events. Duplicates are told by code and
+     * parameters rather than by {@link Msg#equals}, which may not compare the
+     * parameters by value.
+     */
+    private static final class Warnings {
+        private final List<Msg> list = new ArrayList<>();
+        private final Set<String> seen = new HashSet<>();
+
+        void addOnce(String code, Object... params) {
+            if (seen.add(code + Arrays.deepToString(params))) {
+                list.add(Msg.of(code, params));
+            }
+        }
+
+        List<Msg> list() {
+            return List.copyOf(list);
         }
     }
 
