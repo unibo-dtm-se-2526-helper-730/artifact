@@ -86,7 +86,10 @@ public class ImportService {
     }
 
     @Transactional(readOnly = true)
-    public List<ImportBatchEntity> history() {
-        return batches.findAllByOrderByImportedAtDesc();
+    public List<ImportBatchSummary> history() {
+        return batches.findAllByOrderByImportedAtDesc().stream()
+                .map(b -> new ImportBatchSummary(
+                        b.id(), b.filename(), b.broker(), b.importedAt(), b.imported(), b.duplicates(), b.errors()))
+                .toList();
     }
 }

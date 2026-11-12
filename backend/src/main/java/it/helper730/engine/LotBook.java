@@ -63,8 +63,7 @@ public final class LotBook {
 
     /**
      * Applies one operation. A purchase opens a lot, a sale consumes lots and
-     * returns the resulting
-     * disposal; other operations do not change the lots.
+     * returns the resulting disposal; other operations do not change the lots.
      *
      * @throws IllegalArgumentException if the operation precedes the last one
      *                                  applied
@@ -155,8 +154,7 @@ public final class LotBook {
 
     /**
      * Weighted average: the same fraction (sold / held) of every lot; the last lot
-     * takes what is
-     * left so that the parts add up to the quantity sold exactly.
+     * takes what is left so that the parts add up to the quantity sold exactly.
      */
     private static List<BigDecimal> proportionalTakes(List<Lot> lots, BigDecimal toSell, BigDecimal held) {
         List<BigDecimal> taken = new ArrayList<>();
