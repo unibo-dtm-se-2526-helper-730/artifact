@@ -1,0 +1,8 @@
+# Runs the released images from GitHub Container Registry instead of building them:
+#   docker compose -f docker-compose.yml -f docker-compose.release.yml up --no-build --pull always
+# VERSION selects the release (e.g. 0.3.0); without it, the latest one.
+services:
+  backend:
+    image: ghcr.io/unibo-dtm-se-2526-helper-730/helper-730-backend:${VERSION:-latest}
+  frontend:
+    image: ghcr.io/unibo-dtm-se-2526-helper-730/helper-730-frontend:${VERSION:-latest}
